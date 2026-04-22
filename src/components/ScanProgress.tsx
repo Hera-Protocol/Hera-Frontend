@@ -1,8 +1,8 @@
-import { SCAN_STAGES, type ScanStage } from "@/data/mock";
+import { SCAN_STAGES, type UiScanStage } from "@/lib/hera-api";
 import { motion } from "framer-motion";
 
 interface ScanProgressProps {
-  currentStage: ScanStage;
+  currentStage: UiScanStage;
 }
 
 export function ScanProgress({ currentStage }: ScanProgressProps) {

@@ -2,6 +2,8 @@ import { ReactNode } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { LayoutDashboard, FolderOpen, FileText, KeyRound, Settings, ScrollText, Plus, ChevronDown, User } from "lucide-react";
 import { Logo } from "@/components/Logo";
+import { useActiveWorkspace } from "@/lib/hera-hooks";
+import { useHeraConfig } from "@/lib/hera-config";
 
 const navItems = [
   { label: "Dashboard", path: "/dashboard", icon: LayoutDashboard },
@@ -14,6 +16,11 @@ const navItems = [
 
 export function DashboardLayout({ children }: { children: ReactNode }) {
   const location = useLocation();
+  const { isConfigured } = useHeraConfig();
+  const { activeWorkspace } = useActiveWorkspace();
+  const workspaceLabel = !isConfigured
+    ? "Configure Backend"
+    : activeWorkspace?.name ?? "No Workspace";
 
   return (
     <div className="flex min-h-screen bg-background">
@@ -48,10 +55,14 @@ export function DashboardLayout({ children }: { children: ReactNode }) {
       <div className="flex-1 flex flex-col min-w-0">
         {/* Top bar */}
         <header className="h-14 border-b border-border flex items-center justify-between px-6 bg-card">
-          <button className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground">
+          <Link
+            to="/dashboard/settings"
+            className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
+          >
             <span className="font-mono">Workspace</span>
+            <span className="text-foreground">{workspaceLabel}</span>
             <ChevronDown className="w-3 h-3" />
-          </button>
+          </Link>
           <div className="flex items-center gap-3">
             <Link
               to="/dashboard/new-case"
