@@ -38,6 +38,12 @@ export const mockCases: Case[] = [
   { id: "CASE-e91d4f0a", chain: "Namada", status: "SCANNING", created: "2026-04-15", network: "Mainnet" },
   { id: "CASE-2c8e5d1b", chain: "Zcash", status: "CREATED", created: "2026-04-16", network: "Testnet" },
   { id: "CASE-a4b7c9e3", chain: "Namada", status: "FAILED", created: "2026-04-13", network: "Mainnet" },
+  { id: "CASE-1d6f3a09", chain: "Zcash", status: "SIGNED", created: "2026-04-12", network: "Mainnet" },
+  { id: "CASE-9b2e7c41", chain: "Namada", status: "SIGNED", created: "2026-04-11", network: "Mainnet" },
+  { id: "CASE-5a8d0fb6", chain: "Zcash", status: "SIGNED", created: "2026-04-10", network: "Mainnet" },
+  { id: "CASE-3e7c2a18", chain: "Namada", status: "SIGNED", created: "2026-04-09", network: "Testnet" },
+  { id: "CASE-c4f81d33", chain: "Zcash", status: "SIGNED", created: "2026-04-08", network: "Mainnet" },
+  { id: "CASE-6b9e4d77", chain: "Namada", status: "SIGNED", created: "2026-04-07", network: "Mainnet" },
 ];
 
 export const mockEvents: CaseEvent[] = [
