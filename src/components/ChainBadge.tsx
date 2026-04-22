@@ -1,6 +1,6 @@
-import type { Chain } from "@/data/mock";
+import type { UiChain } from "@/lib/hera-api";
 
-export function ChainBadge({ chain }: { chain: Chain }) {
+export function ChainBadge({ chain }: { chain: UiChain }) {
   const isZcash = chain === "Zcash";
   return (
     <span
