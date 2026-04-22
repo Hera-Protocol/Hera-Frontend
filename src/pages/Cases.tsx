@@ -1,20 +1,88 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { DashboardLayout } from "@/components/DashboardLayout";
-import { StatusPill } from "@/components/StatusPill";
-import { ChainBadge } from "@/components/ChainBadge";
-import { mockCases } from "@/data/mock";
 import { motion } from "framer-motion";
 import { Search, Plus, Eye, Lock } from "lucide-react";
+
+import { BackendNotice } from "@/components/BackendNotice";
+import { ChainBadge } from "@/components/ChainBadge";
+import { DashboardLayout } from "@/components/DashboardLayout";
+import { StatusPill } from "@/components/StatusPill";
+import { formatDisplayId } from "@/lib/hera-api";
+import { useActiveWorkspace, useWorkspaceCasesQuery } from "@/lib/hera-hooks";
+import { useHeraConfig } from "@/lib/hera-config";
 
 const filters = ["ALL", "ACTIVE", "SIGNED", "FAILED"] as const;
 type Filter = typeof filters[number];
 
 const Cases = () => {
+  const { isConfigured } = useHeraConfig();
+  const { activeWorkspace, activeWorkspaceId, isLoading: isWorkspaceLoading, error: workspaceError } = useActiveWorkspace();
+  const casesQuery = useWorkspaceCasesQuery(activeWorkspaceId);
   const [filter, setFilter] = useState<Filter>("ALL");
   const [query, setQuery] = useState("");
 
-  const filtered = mockCases.filter((c) => {
+  if (!isConfigured) {
+    return (
+      <DashboardLayout>
+        <BackendNotice
+          title="Backend connection required"
+          description="Set your API base URL and bearer API key before loading live case data."
+        />
+      </DashboardLayout>
+    );
+  }
+
+  if (isWorkspaceLoading) {
+    return (
+      <DashboardLayout>
+        <div className="text-sm text-muted-foreground">Loading workspace...</div>
+      </DashboardLayout>
+    );
+  }
+
+  if (workspaceError) {
+    return (
+      <DashboardLayout>
+        <BackendNotice
+          title="Failed to load workspace"
+          description={workspaceError instanceof Error ? workspaceError.message : "The API did not return a workspace."}
+        />
+      </DashboardLayout>
+    );
+  }
+
+  if (!activeWorkspace) {
+    return (
+      <DashboardLayout>
+        <BackendNotice
+          title="No workspace found"
+          description="Create a workspace in Settings before trying to load cases."
+        />
+      </DashboardLayout>
+    );
+  }
+
+  if (casesQuery.isLoading) {
+    return (
+      <DashboardLayout>
+        <div className="text-sm text-muted-foreground">Loading cases...</div>
+      </DashboardLayout>
+    );
+  }
+
+  if (casesQuery.error) {
+    return (
+      <DashboardLayout>
+        <BackendNotice
+          title="Failed to load cases"
+          description={casesQuery.error instanceof Error ? casesQuery.error.message : "The API did not return case data."}
+        />
+      </DashboardLayout>
+    );
+  }
+
+  const cases = casesQuery.data ?? [];
+  const filtered = cases.filter((c) => {
     const matchesQuery = c.id.toLowerCase().includes(query.toLowerCase());
     const matchesFilter =
       filter === "ALL" ||
@@ -30,7 +98,9 @@ const Cases = () => {
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
             <h1 className="text-2xl font-bold">Cases</h1>
-            <p className="text-sm text-muted-foreground mt-1">All compliance cases in your workspace</p>
+            <p className="text-sm text-muted-foreground mt-1">
+              All compliance cases in {activeWorkspace.name}
+            </p>
           </div>
           <Link
             to="/dashboard/new-case"
@@ -104,11 +174,11 @@ const Cases = () => {
                     transition={{ delay: i * 0.05 }}
                     className="border-b border-border last:border-0 hover:bg-muted/30 transition-colors"
                   >
-                    <td className="px-4 py-3 font-mono text-xs">{c.id}</td>
+                    <td className="px-4 py-3 font-mono text-xs">{formatDisplayId(c.id)}</td>
                     <td className="px-4 py-3"><ChainBadge chain={c.chain} /></td>
                     <td className="px-4 py-3"><StatusPill status={c.status} /></td>
                     <td className="px-4 py-3 text-muted-foreground text-xs font-mono">{c.network}</td>
-                    <td className="px-4 py-3 text-muted-foreground text-xs font-mono">{c.created}</td>
+                    <td className="px-4 py-3 text-muted-foreground text-xs font-mono">{new Date(c.createdAt).toLocaleString()}</td>
                     <td className="px-4 py-3">
                       <Link
                         to={`/dashboard/case/${c.id}`}

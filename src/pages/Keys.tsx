@@ -1,35 +1,80 @@
-import { useState } from "react";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { ChainBadge } from "@/components/ChainBadge";
 import { motion } from "framer-motion";
-import { ShieldAlert, Trash2, KeyRound, Plus } from "lucide-react";
+import { ShieldAlert, KeyRound, Plus, Eye } from "lucide-react";
 import { Link } from "react-router-dom";
-import { toast } from "sonner";
-import type { Chain } from "@/data/mock";
 
-interface KeyEntry {
-  fingerprint: string;
-  chain: Chain;
-  added: string;
-  casesLinked: number;
-}
-
-const initialKeys: KeyEntry[] = [
-  { fingerprint: "zxv1q9k4...e3a2c891", chain: "Zcash", added: "2026-04-14", casesLinked: 1 },
-  { fingerprint: "nam1vk88...77fe21bc", chain: "Namada", added: "2026-04-15", casesLinked: 1 },
-  { fingerprint: "zxv1m2n7...0a4d11ff", chain: "Zcash", added: "2026-04-16", casesLinked: 1 },
-  { fingerprint: "nam1vkaa...c5912b03", chain: "Namada", added: "2026-04-13", casesLinked: 1 },
-];
+import { BackendNotice } from "@/components/BackendNotice";
+import { formatDisplayId } from "@/lib/hera-api";
+import { useActiveWorkspace, useWorkspaceKeysQuery } from "@/lib/hera-hooks";
+import { useHeraConfig } from "@/lib/hera-config";
 
 const Keys = () => {
-  const [keys, setKeys] = useState<KeyEntry[]>(initialKeys);
-  const [pendingDelete, setPendingDelete] = useState<string | null>(null);
+  const { isConfigured } = useHeraConfig();
+  const { activeWorkspace, activeWorkspaceId, isLoading: isWorkspaceLoading, error: workspaceError } = useActiveWorkspace();
+  const keysQuery = useWorkspaceKeysQuery(activeWorkspaceId);
 
-  const confirmDelete = (fp: string) => {
-    setKeys((prev) => prev.filter((k) => k.fingerprint !== fp));
-    setPendingDelete(null);
-    toast(`Viewing key ${fp.slice(0, 8)}... removed`);
-  };
+  if (!isConfigured) {
+    return (
+      <DashboardLayout>
+        <BackendNotice
+          title="Backend connection required"
+          description="Set your API base URL and bearer API key before loading encrypted viewing keys."
+        />
+      </DashboardLayout>
+    );
+  }
+
+  if (isWorkspaceLoading) {
+    return (
+      <DashboardLayout>
+        <div className="text-sm text-muted-foreground">Loading workspace...</div>
+      </DashboardLayout>
+    );
+  }
+
+  if (workspaceError) {
+    return (
+      <DashboardLayout>
+        <BackendNotice
+          title="Failed to load workspace"
+          description={workspaceError instanceof Error ? workspaceError.message : "The API did not return a workspace."}
+        />
+      </DashboardLayout>
+    );
+  }
+
+  if (!activeWorkspace) {
+    return (
+      <DashboardLayout>
+        <BackendNotice
+          title="No workspace found"
+          description="Create a workspace in Settings before trying to inspect viewing keys."
+        />
+      </DashboardLayout>
+    );
+  }
+
+  if (keysQuery.isLoading) {
+    return (
+      <DashboardLayout>
+        <div className="text-sm text-muted-foreground">Loading keys...</div>
+      </DashboardLayout>
+    );
+  }
+
+  if (keysQuery.error) {
+    return (
+      <DashboardLayout>
+        <BackendNotice
+          title="Failed to load keys"
+          description={keysQuery.error instanceof Error ? keysQuery.error.message : "The API did not return key data."}
+        />
+      </DashboardLayout>
+    );
+  }
+
+  const keys = keysQuery.data ?? [];
 
   return (
     <DashboardLayout>
@@ -37,7 +82,9 @@ const Keys = () => {
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
             <h1 className="text-2xl font-bold">Viewing Keys</h1>
-            <p className="text-sm text-muted-foreground mt-1">Manage encrypted viewing keys per case</p>
+            <p className="text-sm text-muted-foreground mt-1">
+              Encrypted viewing keys linked to cases in {activeWorkspace.name}
+            </p>
           </div>
           <Link
             to="/dashboard/new-case"
@@ -49,10 +96,10 @@ const Keys = () => {
         </div>
 
         {/* Warning banner */}
-        <div className="flex items-start gap-3 p-4 border border-primary/30 bg-primary/5 rounded-[6px]">
+          <div className="flex items-start gap-3 p-4 border border-primary/30 bg-primary/5 rounded-[6px]">
           <ShieldAlert className="w-4 h-4 text-primary mt-0.5 shrink-0" />
           <div className="text-xs text-foreground/90">
-            Viewing keys are encrypted at rest using AES-256 with per-tenant KMS wrapping. Hera never sees raw keys after submission.
+            Viewing keys are encrypted at rest using AES-256 with per-tenant KMS wrapping. Stage 1 exposes read-only inventory here; deletion is not implemented yet.
           </div>
         </div>
 
@@ -67,51 +114,34 @@ const Keys = () => {
             <table className="w-full text-sm min-w-[680px]">
               <thead>
                 <tr className="border-b border-border">
-                  <th className="text-left px-4 py-3 label-tag">Fingerprint</th>
+                  <th className="text-left px-4 py-3 label-tag">Key Ref</th>
                   <th className="text-left px-4 py-3 label-tag">Chain</th>
                   <th className="text-left px-4 py-3 label-tag">Added</th>
-                  <th className="text-left px-4 py-3 label-tag">Cases Linked</th>
-                  <th className="text-right px-4 py-3 label-tag">Action</th>
+                  <th className="text-left px-4 py-3 label-tag">Birthday</th>
+                  <th className="text-right px-4 py-3 label-tag">Case</th>
                 </tr>
               </thead>
               <tbody>
                 {keys.map((k, i) => (
                   <motion.tr
-                    key={k.fingerprint}
+                    key={k.id}
                     initial={{ opacity: 0, y: 6 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: i * 0.05 }}
                     className="border-b border-border last:border-0 hover:bg-muted/30 transition-colors"
                   >
-                    <td className="px-4 py-3 font-mono text-xs">{k.fingerprint}</td>
+                    <td className="px-4 py-3 font-mono text-xs">{k.keyRef}</td>
                     <td className="px-4 py-3"><ChainBadge chain={k.chain} /></td>
-                    <td className="px-4 py-3 text-muted-foreground text-xs font-mono">{k.added}</td>
-                    <td className="px-4 py-3 text-xs font-mono">{k.casesLinked}</td>
+                    <td className="px-4 py-3 text-muted-foreground text-xs font-mono">{new Date(k.createdAt).toLocaleString()}</td>
+                    <td className="px-4 py-3 text-xs font-mono">{k.birthdayHeight ?? "None"}</td>
                     <td className="px-4 py-3 text-right">
-                      {pendingDelete === k.fingerprint ? (
-                        <div className="inline-flex items-center gap-2">
-                          <button
-                            onClick={() => setPendingDelete(null)}
-                            className="px-2 py-1 text-[11px] uppercase tracking-[0.08em] text-muted-foreground hover:text-foreground"
-                          >
-                            Cancel
-                          </button>
-                          <button
-                            onClick={() => confirmDelete(k.fingerprint)}
-                            className="px-2 py-1 text-[11px] uppercase tracking-[0.08em] bg-destructive text-destructive-foreground rounded-[6px]"
-                          >
-                            Confirm
-                          </button>
-                        </div>
-                      ) : (
-                        <button
-                          onClick={() => setPendingDelete(k.fingerprint)}
-                          className="inline-flex items-center gap-1 text-xs text-destructive hover:text-destructive/80 uppercase tracking-[0.1em]"
-                        >
-                          <Trash2 className="w-3 h-3" />
-                          Delete
-                        </button>
-                      )}
+                      <Link
+                        to={`/dashboard/case/${k.caseId}`}
+                        className="inline-flex items-center gap-1 text-xs text-primary hover:text-primary/80 uppercase tracking-[0.1em]"
+                      >
+                        <Eye className="w-3 h-3" />
+                        {formatDisplayId(k.caseId)}
+                      </Link>
                     </td>
                   </motion.tr>
                 ))}
