@@ -66,7 +66,14 @@ export function useCaseDetailQuery(caseId: string) {
     queryKey: ["hera", "case", caseId, config.apiBaseUrl, config.apiKey],
     queryFn: () => heraApi.getCase(config, caseId),
     enabled: isConfigured && Boolean(caseId),
-    refetchInterval: 3000,
+    refetchInterval: (query) => {
+      const caseDetail = query.state.data;
+      if (!caseDetail || (caseDetail.status !== "SIGNED" && caseDetail.status !== "FAILED")) {
+        return 3000;
+      }
+
+      return false;
+    },
   });
 }
 

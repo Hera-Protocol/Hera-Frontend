@@ -37,6 +37,11 @@ interface ApiWorkspace {
   updated_at: string;
 }
 
+interface ApiWorkspaceCreateResponse {
+  id: string;
+  name: string;
+}
+
 interface ApiCase {
   id: string;
   workspace_id: string;
@@ -410,12 +415,19 @@ export const heraApi = {
     config: HeraClientConfig,
     input: { name: string }
   ): Promise<Workspace> {
-    const response = await requestJson<ApiWorkspace>(config, "/v1/workspaces", {
+    const response = await requestJson<ApiWorkspaceCreateResponse>(config, "/v1/workspaces", {
       method: "POST",
       body: JSON.stringify(input),
     });
 
-    return mapWorkspace(response);
+    const timestamp = new Date().toISOString();
+
+    return {
+      id: response.id,
+      name: response.name,
+      createdAt: timestamp,
+      updatedAt: timestamp,
+    };
   },
 
   async listCases(

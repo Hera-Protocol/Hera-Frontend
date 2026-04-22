@@ -83,7 +83,11 @@ const Cases = () => {
 
   const cases = casesQuery.data ?? [];
   const filtered = cases.filter((c) => {
-    const matchesQuery = c.id.toLowerCase().includes(query.toLowerCase());
+    const normalizedQuery = query.trim().toLowerCase();
+    const matchesQuery =
+      !normalizedQuery ||
+      c.id.toLowerCase().includes(normalizedQuery) ||
+      formatDisplayId(c.id).toLowerCase().includes(normalizedQuery);
     const matchesFilter =
       filter === "ALL" ||
       (filter === "ACTIVE" && (c.status === "CREATED" || c.status === "SCANNING")) ||
