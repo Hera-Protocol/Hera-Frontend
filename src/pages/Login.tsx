@@ -12,17 +12,13 @@ const Login = () => {
   const { apiBaseUrl, apiKey, updateConnection } = useHeraConfig();
   const [baseUrl, setBaseUrl] = useState(apiBaseUrl);
   const [token, setToken] = useState(apiKey);
-  const [loading, setLoading] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!baseUrl || !token) return;
-    setLoading(true);
-    setTimeout(() => {
-      updateConnection({ apiBaseUrl: baseUrl, apiKey: token });
-      toast("Backend connection saved.");
-      navigate("/dashboard");
-    }, 300);
+    updateConnection({ apiBaseUrl: baseUrl, apiKey: token });
+    toast("Backend connection saved.");
+    navigate("/dashboard");
   };
 
   return (
@@ -81,11 +77,11 @@ const Login = () => {
 
               <button
                 type="submit"
-                disabled={loading || !baseUrl || !token}
+                disabled={!baseUrl || !token}
                 className="w-full inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-primary text-primary-foreground text-xs uppercase tracking-[0.08em] font-medium hover:bg-primary/90 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
               >
-                {loading ? "Connecting..." : "Open Dashboard"}
-                {!loading && <ArrowRight className="w-3.5 h-3.5" />}
+                Open Dashboard
+                <ArrowRight className="w-3.5 h-3.5" />
               </button>
             </form>
 
@@ -100,7 +96,7 @@ const Login = () => {
           </div>
 
           <p className="text-[11px] text-muted-foreground text-center mt-6 font-mono">
-            Protected by SOC 2 · ISO 27001 · session_id: {Math.random().toString(36).slice(2, 10)}
+            Protected by SOC 2 · ISO 27001 · Stage 1 API key access
           </p>
         </motion.div>
       </div>
