@@ -1,0 +1,118 @@
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Avantis-inspired palette — #0D1117 / #161B22 / gold #F0C040 */
+    --background: 215 21% 7%;        /* #0D1117 */
+    --foreground: 213 22% 91%;       /* #E6EDF3 */
+
+    --card: 215 21% 11%;             /* #161B22 surface */
+    --card-foreground: 213 22% 91%;
+
+    --popover: 215 19% 15%;          /* #1E2530 elevated */
+    --popover-foreground: 213 22% 91%;
+
+    --primary: 44 85% 60%;           /* #F0C040 gold */
+    --primary-foreground: 215 21% 7%;
+
+    --secondary: 212 100% 67%;       /* #58A6FF blue */
+    --secondary-foreground: 215 21% 7%;
+
+    --muted: 215 19% 15%;            /* #1E2530 */
+    --muted-foreground: 213 9% 58%;  /* #8B949E */
+
+    --accent: 215 19% 15%;
+    --accent-foreground: 213 22% 91%;
+
+    --destructive: 4 92% 63%;        /* #F85149 */
+    --destructive-foreground: 213 22% 91%;
+
+    --success: 134 49% 49%;          /* #3FB950 */
+    --success-foreground: 215 21% 7%;
+
+    --border: 213 16% 15%;           /* #21262D */
+    --input: 213 16% 15%;
+    --ring: 44 85% 60%;
+
+    --radius: 6px;
+
+    --sidebar-background: 215 21% 7%;
+    --sidebar-foreground: 213 22% 91%;
+    --sidebar-primary: 44 85% 60%;
+    --sidebar-primary-foreground: 215 21% 7%;
+    --sidebar-accent: 215 19% 12%;
+    --sidebar-accent-foreground: 213 22% 91%;
+    --sidebar-border: 213 16% 15%;
+    --sidebar-ring: 44 85% 60%;
+
+    --chain-zcash: 44 85% 60%;       /* gold */
+    --chain-namada: 212 100% 67%;    /* blue */
+
+    font-family: 'Sora', system-ui, sans-serif;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Sora', system-ui, sans-serif;
+    letter-spacing: -0.01em;
+  }
+}
+
+@layer components {
+  .font-mono-display {
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .label-tag {
+    @apply uppercase tracking-[0.1em] text-[11px] font-medium text-muted-foreground;
+    font-family: 'Sora', system-ui, sans-serif;
+  }
+
+  .grid-bg {
+    background-image:
+      linear-gradient(hsl(var(--border) / 0.4) 1px, transparent 1px),
+      linear-gradient(90deg, hsl(var(--border) / 0.4) 1px, transparent 1px);
+    background-size: 48px 48px;
+  }
+
+  .scanline-bg {
+    background-image: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      hsl(var(--background) / 0.03) 2px,
+      hsl(var(--background) / 0.03) 4px
+    );
+  }
+
+  .status-pulse {
+    animation: pulse-dot 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse-dot {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+
+  @keyframes blink-cursor {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+  }
+
+  .blink {
+    animation: blink-cursor 1s step-end infinite;
+  }
+}
