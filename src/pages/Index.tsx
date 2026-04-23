@@ -71,7 +71,7 @@ const Landing = () => {
               FAQ
             </a>
             <Link
-              to="/dashboard"
+              to="/login"
               className="inline-flex items-center px-4 py-2 bg-primary text-primary-foreground text-xs uppercase tracking-[0.1em] font-semibold rounded-[6px] hover:bg-primary/90 transition-colors"
             >
               Launch App
@@ -97,9 +97,12 @@ const Landing = () => {
               Zero-knowledge proof compatible. Audit-ready.
             </p>
             <div className="mt-10 flex flex-col sm:flex-row gap-3 justify-center">
-              <button className="w-full sm:w-auto px-8 py-3 bg-primary text-primary-foreground text-sm uppercase tracking-[0.08em] font-medium hover:bg-primary/90 transition-colors">
+              <Link
+                to="/request-access"
+                className="w-full sm:w-auto px-8 py-3 bg-primary text-primary-foreground text-sm uppercase tracking-[0.08em] font-medium hover:bg-primary/90 transition-colors text-center"
+              >
                 Request Early Access
-              </button>
+              </Link>
               <a
                 href="#how-it-works"
                 className="w-full sm:w-auto px-8 py-3 border border-border text-sm uppercase tracking-[0.08em] font-medium text-muted-foreground hover:text-foreground hover:border-muted-foreground/50 transition-colors text-center"

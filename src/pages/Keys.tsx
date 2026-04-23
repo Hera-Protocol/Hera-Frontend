@@ -18,8 +18,10 @@ const Keys = () => {
     return (
       <DashboardLayout>
         <BackendNotice
-          title="Backend connection required"
-          description="Set your API base URL and bearer API key before loading encrypted viewing keys."
+          title="Sign in required"
+          description="Sign in with your username and password before loading encrypted viewing keys."
+          actionLabel="Go to Login"
+          actionPath="/login"
         />
       </DashboardLayout>
     );
@@ -99,7 +101,7 @@ const Keys = () => {
           <div className="flex items-start gap-3 p-4 border border-primary/30 bg-primary/5 rounded-[6px]">
           <ShieldAlert className="w-4 h-4 text-primary mt-0.5 shrink-0" />
           <div className="text-xs text-foreground/90">
-            Viewing keys are encrypted at rest using AES-256 with per-tenant KMS wrapping. Stage 1 exposes read-only inventory here; deletion is not implemented yet.
+            Viewing keys are encrypted at rest using AES-256 with per-tenant KMS wrapping. This page is currently read-only.
           </div>
         </div>
 

@@ -80,8 +80,10 @@ const CaseDetail = () => {
     return (
       <DashboardLayout>
         <BackendNotice
-          title="Backend connection required"
-          description="Set your API base URL and bearer API key before loading case detail."
+          title="Sign in required"
+          description="Sign in with your username and password before loading case detail."
+          actionLabel="Go to Login"
+          actionPath="/login"
         />
       </DashboardLayout>
     );

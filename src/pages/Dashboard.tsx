@@ -21,8 +21,10 @@ const Dashboard = () => {
     return (
       <DashboardLayout>
         <BackendNotice
-          title="Backend connection required"
-          description="Set your Stage 1 API base URL and bearer API key before the dashboard can load live workspace data."
+          title="Sign in required"
+          description="Sign in with your username and password before loading live data."
+          actionLabel="Go to Login"
+          actionPath="/login"
         />
       </DashboardLayout>
     );
@@ -52,7 +54,7 @@ const Dashboard = () => {
       <DashboardLayout>
         <BackendNotice
           title="No workspace found"
-          description="This API key is valid, but no workspaces exist for it yet. Create one in Settings before starting a case."
+          description="Your account is connected, but no workspaces exist yet. Create one in workspace settings before starting a case."
         />
       </DashboardLayout>
     );

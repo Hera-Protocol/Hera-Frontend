@@ -10,6 +10,7 @@ import {
 const STORAGE_API_BASE_URL = "hera.apiBaseUrl";
 const STORAGE_API_KEY = "hera.apiKey";
 const STORAGE_WORKSPACE_ID = "hera.workspaceId";
+const STORAGE_USERNAME = "hera.username";
 
 const DEFAULT_API_BASE_URL =
   (import.meta.env.VITE_HERA_API_BASE_URL as string | undefined) ??
@@ -26,9 +27,10 @@ function normalizeBaseUrl(value: string): string {
 interface HeraConfigContextValue {
   apiBaseUrl: string;
   apiKey: string;
+  username: string;
   selectedWorkspaceId: string;
   isConfigured: boolean;
-  updateConnection: (next: { apiBaseUrl: string; apiKey: string }) => void;
+  updateConnection: (next: { apiBaseUrl: string; apiKey: string; username?: string }) => void;
   setSelectedWorkspaceId: (workspaceId: string) => void;
   clearConnection: () => void;
 }
@@ -51,6 +53,13 @@ export function HeraConfigProvider({ children }: { children: ReactNode }) {
     }
 
     return (DEFAULT_API_KEY).trim();
+  });
+  const [username, setUsername] = useState(() => {
+    if (typeof window === "undefined") {
+      return "";
+    }
+
+    return (window.localStorage.getItem(STORAGE_USERNAME) ?? "").trim();
   });
   const [selectedWorkspaceId, setSelectedWorkspaceIdState] = useState(() => {
     if (typeof window === "undefined") {
@@ -82,14 +91,24 @@ export function HeraConfigProvider({ children }: { children: ReactNode }) {
     }
   }, [selectedWorkspaceId]);
 
+  useEffect(() => {
+    if (username) {
+      window.localStorage.setItem(STORAGE_USERNAME, username);
+    } else {
+      window.localStorage.removeItem(STORAGE_USERNAME);
+    }
+  }, [username]);
+
   const value: HeraConfigContextValue = {
     apiBaseUrl,
     apiKey,
+    username,
     selectedWorkspaceId,
     isConfigured: Boolean(apiBaseUrl && apiKey),
     updateConnection: (next) => {
       setApiBaseUrl(normalizeBaseUrl(next.apiBaseUrl || DEFAULT_API_BASE_URL));
       setApiKey(next.apiKey.trim());
+      setUsername((next.username ?? "").trim());
     },
     setSelectedWorkspaceId: (workspaceId) => {
       setSelectedWorkspaceIdState(workspaceId.trim());
@@ -97,6 +116,7 @@ export function HeraConfigProvider({ children }: { children: ReactNode }) {
     clearConnection: () => {
       setApiBaseUrl(normalizeBaseUrl(DEFAULT_API_BASE_URL));
       setApiKey("");
+      setUsername("");
       setSelectedWorkspaceIdState("");
     },
   };

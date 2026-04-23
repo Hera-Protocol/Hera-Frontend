@@ -19,8 +19,10 @@ const AuditLog = () => {
     return (
       <DashboardLayout>
         <BackendNotice
-          title="Backend connection required"
-          description="Set your API base URL and bearer API key before loading workspace audit logs."
+          title="Sign in required"
+          description="Sign in with your username and password before loading workspace audit logs."
+          actionLabel="Go to Login"
+          actionPath="/login"
         />
       </DashboardLayout>
     );

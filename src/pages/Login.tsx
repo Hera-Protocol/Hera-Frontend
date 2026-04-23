@@ -1,24 +1,62 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Logo } from "@/components/Logo";
-import { Lock, Globe, ArrowRight } from "lucide-react";
+import { Lock, User, ArrowRight } from "lucide-react";
 import { toast } from "sonner";
 
 import { useHeraConfig } from "@/lib/hera-config";
 
 const Login = () => {
   const navigate = useNavigate();
-  const { apiBaseUrl, apiKey, updateConnection } = useHeraConfig();
-  const [baseUrl, setBaseUrl] = useState(apiBaseUrl);
-  const [token, setToken] = useState(apiKey);
+  const location = useLocation();
+  const { username: savedUsername, updateConnection } = useHeraConfig();
+  const [username, setUsername] = useState(savedUsername);
+  const [password, setPassword] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const redirectTo =
+    typeof (location.state as { from?: string } | null)?.from === "string"
+      ? (location.state as { from: string }).from
+      : "/dashboard";
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!baseUrl || !token) return;
-    updateConnection({ apiBaseUrl: baseUrl, apiKey: token });
-    toast("Backend connection saved.");
-    navigate("/dashboard");
+    if (!username || !password) return;
+
+    setSubmitting(true);
+    try {
+      const response = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ username, password }),
+      });
+
+      const body = (await response.json().catch(() => null)) as
+        | { username?: string; apiBaseUrl?: string; apiKey?: string; error?: { message?: string } }
+        | null;
+
+      if (!response.ok) {
+        throw new Error(body?.error?.message ?? "Login failed.");
+      }
+
+      if (!body?.apiBaseUrl || !body?.apiKey) {
+        throw new Error("Login response was incomplete.");
+      }
+
+      updateConnection({
+        apiBaseUrl: body.apiBaseUrl,
+        apiKey: body.apiKey,
+        username: body.username ?? username,
+      });
+      toast("Signed in successfully.");
+      navigate(redirectTo, { replace: true });
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Login failed.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -38,22 +76,22 @@ const Login = () => {
           <div className="border border-border bg-card p-8 space-y-6">
             <div className="space-y-2">
               <p className="label-tag text-primary">Compliance Portal</p>
-              <h1 className="text-2xl font-mono font-bold">Connect to Hera API</h1>
+              <h1 className="text-2xl font-mono font-bold">Sign in to Hera</h1>
               <p className="text-sm text-muted-foreground">
-                Stage 1 authenticates with a bearer API key, not email/password sessions.
+                Enter your username and password to open the beta workspace.
               </p>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="label-tag block mb-2">API Base URL</label>
+                <label className="label-tag block mb-2">Username</label>
                 <div className="relative">
-                  <Globe className="w-3.5 h-3.5 text-muted-foreground absolute left-3 top-1/2 -translate-y-1/2" />
+                  <User className="w-3.5 h-3.5 text-muted-foreground absolute left-3 top-1/2 -translate-y-1/2" />
                   <input
-                    type="url"
-                    value={baseUrl}
-                    onChange={(e) => setBaseUrl(e.target.value)}
-                    placeholder="http://127.0.0.1:3000"
+                    type="text"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    placeholder="Enter your username"
                     className="w-full bg-muted border border-border pl-9 pr-3 py-2.5 text-sm font-mono focus:outline-none focus:ring-1 focus:ring-primary placeholder:text-muted-foreground/40"
                   />
                 </div>
@@ -61,26 +99,26 @@ const Login = () => {
 
               <div>
                 <div className="flex items-center justify-between mb-2">
-                  <label className="label-tag">Bearer API Key</label>
+                  <label className="label-tag">Password</label>
                 </div>
                 <div className="relative">
                   <Lock className="w-3.5 h-3.5 text-muted-foreground absolute left-3 top-1/2 -translate-y-1/2" />
-                  <textarea
-                    value={token}
-                    onChange={(e) => setToken(e.target.value)}
-                    placeholder="Paste a tenant API key"
-                    rows={4}
-                    className="w-full bg-muted border border-border pl-9 pr-3 py-2.5 text-sm font-mono focus:outline-none focus:ring-1 focus:ring-primary resize-none placeholder:text-muted-foreground/40"
+                  <input
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="Enter your password"
+                    className="w-full bg-muted border border-border pl-9 pr-3 py-2.5 text-sm font-mono focus:outline-none focus:ring-1 focus:ring-primary placeholder:text-muted-foreground/40"
                   />
                 </div>
               </div>
 
               <button
                 type="submit"
-                disabled={!baseUrl || !token}
+                disabled={!username || !password || submitting}
                 className="w-full inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-primary text-primary-foreground text-xs uppercase tracking-[0.08em] font-medium hover:bg-primary/90 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
               >
-                Open Dashboard
+                {submitting ? "Signing In..." : "Enter Workspace"}
                 <ArrowRight className="w-3.5 h-3.5" />
               </button>
             </form>
@@ -88,7 +126,7 @@ const Login = () => {
             <div className="pt-4 border-t border-border">
               <p className="text-xs text-muted-foreground text-center">
                 Need access?{" "}
-                <Link to="/" className="text-primary hover:text-primary/80">
+                <Link to="/request-access" className="text-primary hover:text-primary/80">
                   Request early access
                 </Link>
               </p>
@@ -96,7 +134,7 @@ const Login = () => {
           </div>
 
           <p className="text-[11px] text-muted-foreground text-center mt-6 font-mono">
-            Protected by SOC 2 · ISO 27001 · Stage 1 API key access
+            Protected by SOC 2 · ISO 27001 · Private beta access
           </p>
         </motion.div>
       </div>

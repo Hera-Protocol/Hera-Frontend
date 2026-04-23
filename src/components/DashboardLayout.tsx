@@ -19,8 +19,9 @@ export function DashboardLayout({ children }: { children: ReactNode }) {
   const { isConfigured } = useHeraConfig();
   const { activeWorkspace } = useActiveWorkspace();
   const workspaceLabel = !isConfigured
-    ? "Configure Backend"
+    ? "Not Connected"
     : activeWorkspace?.name ?? "No Workspace";
+  const workspaceLinkPath = isConfigured ? "/dashboard/settings" : "/login";
 
   return (
     <div className="flex min-h-screen bg-background">
@@ -56,7 +57,7 @@ export function DashboardLayout({ children }: { children: ReactNode }) {
         {/* Top bar */}
         <header className="h-14 border-b border-border flex items-center justify-between px-6 bg-card">
           <Link
-            to="/dashboard/settings"
+            to={workspaceLinkPath}
             className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
           >
             <span className="font-mono">Workspace</span>

@@ -208,6 +208,21 @@ function authHeaders(config: HeraClientConfig): HeadersInit {
   };
 }
 
+function shouldProxyApiRequest(apiBaseUrl: string): boolean {
+  if (typeof window === "undefined") {
+    return false;
+  }
+
+  try {
+    return (
+      window.location.protocol === "https:" &&
+      window.location.origin !== new URL(apiBaseUrl).origin
+    );
+  } catch {
+    return false;
+  }
+}
+
 function shouldSendNgrokBypassHeader(apiBaseUrl: string): boolean {
   try {
     return new URL(apiBaseUrl).hostname.includes("ngrok");
@@ -222,6 +237,7 @@ function buildHeaders(
   options?: { json?: boolean }
 ): Headers {
   const headers = new Headers(initHeaders);
+  const proxyRequest = shouldProxyApiRequest(config.apiBaseUrl);
 
   if (!headers.has("Authorization")) {
     headers.set("Authorization", `Bearer ${config.apiKey}`);
@@ -231,7 +247,12 @@ function buildHeaders(
     headers.set("Content-Type", "application/json");
   }
 
+  if (proxyRequest && !headers.has("x-hera-upstream-base-url")) {
+    headers.set("x-hera-upstream-base-url", config.apiBaseUrl);
+  }
+
   if (
+    !proxyRequest &&
     shouldSendNgrokBypassHeader(config.apiBaseUrl) &&
     !headers.has("ngrok-skip-browser-warning")
   ) {
@@ -241,12 +262,20 @@ function buildHeaders(
   return headers;
 }
 
+function buildRequestUrl(config: HeraClientConfig, path: string): string {
+  if (shouldProxyApiRequest(config.apiBaseUrl)) {
+    return `/api/hera${path}`;
+  }
+
+  return `${config.apiBaseUrl}${path}`;
+}
+
 async function requestJson<T>(
   config: HeraClientConfig,
   path: string,
   init?: RequestInit
 ): Promise<T> {
-  const response = await fetch(`${config.apiBaseUrl}${path}`, {
+  const response = await fetch(buildRequestUrl(config, path), {
     ...init,
     headers: buildHeaders(config, init?.headers, { json: true }),
   });
@@ -277,7 +306,7 @@ async function requestArtifact(
   config: HeraClientConfig,
   path: string
 ): Promise<{ blob: Blob; sha256: string | null }> {
-  const response = await fetch(`${config.apiBaseUrl}${path}`, {
+  const response = await fetch(buildRequestUrl(config, path), {
     headers: buildHeaders(config),
   });
 

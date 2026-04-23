@@ -4,7 +4,7 @@ import { AlertTriangle, ArrowRight } from "lucide-react";
 export function BackendNotice({
   title,
   description,
-  actionLabel = "Open Settings",
+  actionLabel = "Open Workspace Settings",
   actionPath = "/dashboard/settings",
 }: {
   title: string;
