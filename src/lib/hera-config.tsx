@@ -42,7 +42,7 @@ export function HeraConfigProvider({ children }: { children: ReactNode }) {
     }
 
     return normalizeBaseUrl(
-      window.localStorage.getItem(STORAGE_API_BASE_URL) ?? DEFAULT_API_BASE_URL
+      DEFAULT_API_BASE_URL
     );
   });
   const [apiKey, setApiKey] = useState(() => {
@@ -50,7 +50,7 @@ export function HeraConfigProvider({ children }: { children: ReactNode }) {
       return DEFAULT_API_KEY;
     }
 
-    return (window.localStorage.getItem(STORAGE_API_KEY) ?? DEFAULT_API_KEY).trim();
+    return (DEFAULT_API_KEY).trim();
   });
   const [selectedWorkspaceId, setSelectedWorkspaceIdState] = useState(() => {
     if (typeof window === "undefined") {
