@@ -11,6 +11,52 @@ import { heraApi, type UiChain, type UiNetwork } from "@/lib/hera-api";
 import { useActiveWorkspace } from "@/lib/hera-hooks";
 import { useHeraConfig } from "@/lib/hera-config";
 
+const chainOptions: Array<{
+  chain: UiChain;
+  description: string;
+}> = [
+  {
+    chain: "Zcash",
+    description: "Privacy-focused cryptocurrency with shielded transactions",
+  },
+  {
+    chain: "Namada",
+    description: "Multi-chain privacy layer with MASP support",
+  },
+];
+
+function ChainMark({ chain }: { chain: UiChain }) {
+  if (chain === "Zcash") {
+    return (
+      <svg
+        viewBox="0 0 48 48"
+        aria-hidden="true"
+        className="h-12 w-12"
+      >
+        <circle cx="24" cy="24" r="22" className="fill-zcash/15 stroke-zcash/40" strokeWidth="2" />
+        <path
+          d="M16 15h16v4.5l-9.05 9H32V33H16v-4.5l9.05-9H16V15Z"
+          className="fill-zcash"
+        />
+      </svg>
+    );
+  }
+
+  return (
+    <svg
+      viewBox="0 0 48 48"
+      aria-hidden="true"
+      className="h-12 w-12"
+    >
+      <circle cx="24" cy="24" r="22" className="fill-namada/15 stroke-namada/40" strokeWidth="2" />
+      <path
+        d="M14 33V15h4.5l11 11.8V15H34v18h-4.35L18.5 21V33H14Z"
+        className="fill-namada"
+      />
+    </svg>
+  );
+}
+
 const NewCase = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -144,27 +190,30 @@ const NewCase = () => {
             >
               <h2 className="font-mono font-semibold">Select Chain</h2>
               <div className="grid grid-cols-2 gap-4">
-                {(["Zcash", "Namada"] as UiChain[]).map((c) => (
+                {chainOptions.map(({ chain: option, description }) => (
                   <button
-                    key={c}
-                    onClick={() => setChain(c)}
+                    key={option}
+                    onClick={() => setChain(option)}
                     className={`border p-6 text-left transition-all ${
-                      chain === c
-                        ? "border-primary shadow-[0_0_20px_hsl(var(--primary)/0.15)]"
-                        : "border-border hover:border-muted-foreground/30"
+                      chain === option
+                        ? "border-primary bg-primary/[0.04] shadow-[0_0_20px_hsl(var(--primary)/0.15)]"
+                        : "border-border hover:border-muted-foreground/30 hover:bg-muted/20"
                     }`}
                   >
-                    <div
-                      className={`w-8 h-8 rounded-full mb-3 ${
-                        c === "Zcash" ? "bg-zcash/20" : "bg-namada/20"
-                      }`}
-                    />
-                    <h3 className="font-mono font-semibold text-sm">{c}</h3>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      {c === "Zcash"
-                        ? "Privacy-focused cryptocurrency with shielded transactions"
-                        : "Multi-chain privacy layer with MASP support"}
-                    </p>
+                    <div className="mb-4 flex items-center justify-between">
+                      <ChainMark chain={option} />
+                      <span
+                        className={`px-2 py-1 text-[10px] uppercase tracking-[0.12em] font-medium ${
+                          option === "Zcash"
+                            ? "bg-zcash/10 text-zcash"
+                            : "bg-namada/10 text-namada"
+                        }`}
+                      >
+                        {option}
+                      </span>
+                    </div>
+                    <h3 className="font-mono font-semibold text-sm">{option}</h3>
+                    <p className="text-xs text-muted-foreground mt-1">{description}</p>
                   </button>
                 ))}
               </div>
