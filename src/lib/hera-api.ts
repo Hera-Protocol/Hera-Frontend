@@ -208,6 +208,39 @@ function authHeaders(config: HeraClientConfig): HeadersInit {
   };
 }
 
+function shouldSendNgrokBypassHeader(apiBaseUrl: string): boolean {
+  try {
+    return new URL(apiBaseUrl).hostname.includes("ngrok");
+  } catch {
+    return false;
+  }
+}
+
+function buildHeaders(
+  config: HeraClientConfig,
+  initHeaders?: HeadersInit,
+  options?: { json?: boolean }
+): Headers {
+  const headers = new Headers(initHeaders);
+
+  if (!headers.has("Authorization")) {
+    headers.set("Authorization", `Bearer ${config.apiKey}`);
+  }
+
+  if (options?.json && !headers.has("Content-Type")) {
+    headers.set("Content-Type", "application/json");
+  }
+
+  if (
+    shouldSendNgrokBypassHeader(config.apiBaseUrl) &&
+    !headers.has("ngrok-skip-browser-warning")
+  ) {
+    headers.set("ngrok-skip-browser-warning", "true");
+  }
+
+  return headers;
+}
+
 async function requestJson<T>(
   config: HeraClientConfig,
   path: string,
@@ -215,11 +248,7 @@ async function requestJson<T>(
 ): Promise<T> {
   const response = await fetch(`${config.apiBaseUrl}${path}`, {
     ...init,
-    headers: {
-      "Content-Type": "application/json",
-      ...authHeaders(config),
-      ...(init?.headers ?? {}),
-    },
+    headers: buildHeaders(config, init?.headers, { json: true }),
   });
 
   if (!response.ok) {
@@ -249,7 +278,7 @@ async function requestArtifact(
   path: string
 ): Promise<{ blob: Blob; sha256: string | null }> {
   const response = await fetch(`${config.apiBaseUrl}${path}`, {
-    headers: authHeaders(config),
+    headers: buildHeaders(config),
   });
 
   if (!response.ok) {
