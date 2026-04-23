@@ -1,3 +1,8 @@
+const DEFAULT_BETA_USERNAME = "Username";
+const DEFAULT_BETA_PASSWORD = "Hera123";
+const DEFAULT_UPSTREAM_API_BASE_URL = "https://6573-102-216-202-19.ngrok-free.app";
+const DEFAULT_UPSTREAM_API_KEY = "hera-demo-api-key";
+
 function readBody(req) {
   return new Promise((resolve, reject) => {
     const chunks = [];
@@ -32,6 +37,22 @@ function missingEnv() {
   );
 }
 
+function configuredUsername() {
+  return process.env.HERA_BETA_USERNAME || DEFAULT_BETA_USERNAME;
+}
+
+function configuredPassword() {
+  return process.env.HERA_BETA_PASSWORD || DEFAULT_BETA_PASSWORD;
+}
+
+function configuredApiBaseUrl() {
+  return process.env.HERA_UPSTREAM_API_BASE_URL || DEFAULT_UPSTREAM_API_BASE_URL;
+}
+
+function configuredApiKey() {
+  return process.env.HERA_UPSTREAM_API_KEY || DEFAULT_UPSTREAM_API_KEY;
+}
+
 export default async function handler(req, res) {
   if (req.method !== "POST") {
     res.setHeader("Allow", "POST");
@@ -39,16 +60,6 @@ export default async function handler(req, res) {
       error: {
         code: "method_not_allowed",
         message: "Only POST is supported.",
-      },
-    });
-    return;
-  }
-
-  if (missingEnv()) {
-    res.status(503).json({
-      error: {
-        code: "beta_login_not_configured",
-        message: "Beta login is not configured.",
       },
     });
     return;
@@ -81,8 +92,8 @@ export default async function handler(req, res) {
   }
 
   if (
-    username !== process.env.HERA_BETA_USERNAME ||
-    password !== process.env.HERA_BETA_PASSWORD
+    username !== configuredUsername() ||
+    password !== configuredPassword()
   ) {
     res.status(401).json({
       error: {
@@ -95,7 +106,8 @@ export default async function handler(req, res) {
 
   res.status(200).json({
     username,
-    apiBaseUrl: process.env.HERA_UPSTREAM_API_BASE_URL,
-    apiKey: process.env.HERA_UPSTREAM_API_KEY,
+    apiBaseUrl: configuredApiBaseUrl(),
+    apiKey: configuredApiKey(),
+    isDefaultDemo: missingEnv(),
   });
 }

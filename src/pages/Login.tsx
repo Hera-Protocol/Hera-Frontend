@@ -7,6 +7,15 @@ import { toast } from "sonner";
 
 import { useHeraConfig } from "@/lib/hera-config";
 
+const DEMO_USERNAME = "Username";
+const DEMO_PASSWORD = "Hera123";
+const DEMO_API_BASE_URL =
+  (import.meta.env.VITE_HERA_API_BASE_URL as string | undefined) ??
+  "http://127.0.0.1:3000";
+const DEMO_API_KEY =
+  (import.meta.env.VITE_HERA_API_KEY as string | undefined) ??
+  "hera-demo-api-key";
+
 const Login = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -19,12 +28,35 @@ const Login = () => {
       ? (location.state as { from: string }).from
       : "/dashboard";
 
+  const completeLogin = (next: {
+    apiBaseUrl: string;
+    apiKey: string;
+    username?: string;
+  }) => {
+    updateConnection({
+      apiBaseUrl: next.apiBaseUrl,
+      apiKey: next.apiKey,
+      username: next.username ?? username,
+    });
+    toast("Signed in successfully.");
+    navigate(redirectTo, { replace: true });
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!username || !password) return;
 
     setSubmitting(true);
     try {
+      if (username === DEMO_USERNAME && password === DEMO_PASSWORD) {
+        completeLogin({
+          apiBaseUrl: DEMO_API_BASE_URL,
+          apiKey: DEMO_API_KEY,
+          username,
+        });
+        return;
+      }
+
       const response = await fetch("/api/auth/login", {
         method: "POST",
         headers: {
@@ -45,13 +77,11 @@ const Login = () => {
         throw new Error("Login response was incomplete.");
       }
 
-      updateConnection({
+      completeLogin({
         apiBaseUrl: body.apiBaseUrl,
         apiKey: body.apiKey,
         username: body.username ?? username,
       });
-      toast("Signed in successfully.");
-      navigate(redirectTo, { replace: true });
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Login failed.");
     } finally {
@@ -80,6 +110,9 @@ const Login = () => {
               <p className="text-sm text-muted-foreground">
                 Enter your username and password to open the beta workspace.
               </p>
+              <p className="text-xs font-mono text-muted-foreground">
+                Demo access: <span className="text-foreground">Username</span> / <span className="text-foreground">Hera123</span>
+              </p>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-4">
@@ -91,7 +124,7 @@ const Login = () => {
                     type="text"
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
-                    placeholder="Enter your username"
+                    placeholder="Username"
                     className="w-full bg-muted border border-border pl-9 pr-3 py-2.5 text-sm font-mono focus:outline-none focus:ring-1 focus:ring-primary placeholder:text-muted-foreground/40"
                   />
                 </div>
@@ -107,7 +140,7 @@ const Login = () => {
                     type="password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Enter your password"
+                    placeholder="Hera123"
                     className="w-full bg-muted border border-border pl-9 pr-3 py-2.5 text-sm font-mono focus:outline-none focus:ring-1 focus:ring-primary placeholder:text-muted-foreground/40"
                   />
                 </div>
