@@ -71,10 +71,10 @@ const Landing = () => {
               FAQ
             </a>
             <Link
-              to="/login"
+              to="/request-access"
               className="inline-flex items-center px-4 py-2 bg-primary text-primary-foreground text-xs uppercase tracking-[0.1em] font-semibold rounded-[6px] hover:bg-primary/90 transition-colors"
             >
-              Launch App
+              Request Access
             </Link>
           </div>
         </nav>

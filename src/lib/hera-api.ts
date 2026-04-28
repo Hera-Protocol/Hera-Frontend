@@ -179,6 +179,7 @@ export interface WorkspaceViewKey {
 }
 
 export interface AuditLogEntry {
+  [x: string]: any;
   id: string;
   actorId: string;
   action: string;
@@ -208,76 +209,18 @@ function authHeaders(config: HeraClientConfig): HeadersInit {
   };
 }
 
-function shouldProxyApiRequest(apiBaseUrl: string): boolean {
-  if (typeof window === "undefined") {
-    return false;
-  }
-
-  try {
-    return (
-      window.location.protocol === "https:" &&
-      window.location.origin !== new URL(apiBaseUrl).origin
-    );
-  } catch {
-    return false;
-  }
-}
-
-function shouldSendNgrokBypassHeader(apiBaseUrl: string): boolean {
-  try {
-    return new URL(apiBaseUrl).hostname.includes("ngrok");
-  } catch {
-    return false;
-  }
-}
-
-function buildHeaders(
-  config: HeraClientConfig,
-  initHeaders?: HeadersInit,
-  options?: { json?: boolean }
-): Headers {
-  const headers = new Headers(initHeaders);
-  const proxyRequest = shouldProxyApiRequest(config.apiBaseUrl);
-
-  if (!headers.has("Authorization")) {
-    headers.set("Authorization", `Bearer ${config.apiKey}`);
-  }
-
-  if (options?.json && !headers.has("Content-Type")) {
-    headers.set("Content-Type", "application/json");
-  }
-
-  if (proxyRequest && !headers.has("x-hera-upstream-base-url")) {
-    headers.set("x-hera-upstream-base-url", config.apiBaseUrl);
-  }
-
-  if (
-    !proxyRequest &&
-    shouldSendNgrokBypassHeader(config.apiBaseUrl) &&
-    !headers.has("ngrok-skip-browser-warning")
-  ) {
-    headers.set("ngrok-skip-browser-warning", "true");
-  }
-
-  return headers;
-}
-
-function buildRequestUrl(config: HeraClientConfig, path: string): string {
-  if (shouldProxyApiRequest(config.apiBaseUrl)) {
-    return `/api/hera${path}`;
-  }
-
-  return `${config.apiBaseUrl}${path}`;
-}
-
 async function requestJson<T>(
   config: HeraClientConfig,
   path: string,
   init?: RequestInit
 ): Promise<T> {
-  const response = await fetch(buildRequestUrl(config, path), {
+  const response = await fetch(`${config.apiBaseUrl}${path}`, {
     ...init,
-    headers: buildHeaders(config, init?.headers, { json: true }),
+    headers: {
+      "Content-Type": "application/json",
+      ...authHeaders(config),
+      ...(init?.headers ?? {}),
+    },
   });
 
   if (!response.ok) {
@@ -306,8 +249,8 @@ async function requestArtifact(
   config: HeraClientConfig,
   path: string
 ): Promise<{ blob: Blob; sha256: string | null }> {
-  const response = await fetch(buildRequestUrl(config, path), {
-    headers: buildHeaders(config),
+  const response = await fetch(`${config.apiBaseUrl}${path}`, {
+    headers: authHeaders(config),
   });
 
   if (!response.ok) {
