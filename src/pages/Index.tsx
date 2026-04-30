@@ -30,10 +30,10 @@ const howItWorks = [
 ];
 
 const stats = [
-  { value: "2M+", label: "Shielded transactions analyzed" },
-  { value: "<5min", label: "Average scan completion" },
-  { value: "100%", label: "Cryptographic proof coverage" },
-  { value: "0", label: "Raw keys stored" },
+  { value: "50k+", label: "Audio Throughput(QPS)" },
+  { value: "<100ms", label: "Compliance Latency" },
+  { value: "100%", label: "Proof Integrity" },
+  { value: "Zero(0)", label: "Non Custodial Security" },
 ];
 
 const principles = [
