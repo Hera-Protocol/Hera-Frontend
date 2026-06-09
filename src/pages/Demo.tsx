@@ -95,7 +95,7 @@ function ScanTerminal({
       <div className="flex items-center gap-2 px-4 py-2.5 border-b border-border bg-muted/30">
         <Terminal className="w-3.5 h-3.5 text-muted-foreground" />
         <span className="text-[11px] font-mono text-muted-foreground">
-          hera demo --chain zcash --mode sandbox
+          hera scan --chain zcash --key zxviews1q0...f8a2
         </span>
         {phase !== "idle" && phase !== "complete" && (
           <span className="ml-auto w-2 h-2 rounded-full bg-secondary status-pulse" />
@@ -498,7 +498,7 @@ const Demo = () => {
 
     // Initial line
     const t0 = setTimeout(() => {
-      setTerminalLines([{ text: `Initializing demo sandbox — mode=${mode}`, status: "ok" }]);
+      setTerminalLines([{ text: `Initializing scan — mode=${mode}`, status: "ok" }]);
       setScanPhase("connecting");
     }, elapsed);
     timeoutRef.current.push(t0);
@@ -561,12 +561,12 @@ const Demo = () => {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.download = `hera-demo-report-${mode}.json`;
+    link.download = `hera-report-${mode}.json`;
     document.body.appendChild(link);
     link.click();
     link.remove();
     URL.revokeObjectURL(url);
-    toast("Demo report JSON downloaded");
+    toast("Report JSON downloaded");
   };
 
   return (
@@ -578,7 +578,7 @@ const Demo = () => {
             <Logo size={24} />
           </Link>
           <span className="text-[10px] uppercase tracking-[0.12em] font-medium px-2 py-0.5 bg-primary/15 text-primary rounded-full">
-            Demo Sandbox
+            Compliance Audit
           </span>
         </div>
         <div className="flex items-center gap-3">
@@ -597,14 +597,14 @@ const Demo = () => {
         <HexBackground />
         <div className="relative z-10 max-w-4xl mx-auto text-center">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-            <p className="label-tag mb-3">Interactive Demo</p>
+            <p className="label-tag mb-3">Shielded Chain Compliance</p>
             <h1 className="text-3xl md:text-5xl font-mono font-bold leading-tight">
-              Simulate a{" "}
+              Run a{" "}
               <span className="text-primary">Zcash audit</span>
             </h1>
             <p className="mt-4 text-muted-foreground max-w-xl mx-auto">
-              Run a sandbox scan against mock Zcash Sapling data. Toggle between Standard (Stage 2)
-              and ZK Mode (Stage 3 Caulk+ attestation) to see the full compliance pipeline.
+              Scan shielded Zcash Sapling activity using a viewing key. Toggle between Standard (Stage 2 signed report)
+              and ZK Mode (Stage 3 Caulk+ attestation) for the full compliance pipeline.
             </p>
           </motion.div>
         </div>
@@ -632,7 +632,7 @@ const Demo = () => {
             ) : (
               <>
                 <Play className="w-3.5 h-3.5" />
-                Run Demo Scan
+                Run Scan
               </>
             )}
           </button>
@@ -751,22 +751,6 @@ const Demo = () => {
                 </div>
               </div>
 
-              {/* API endpoint reference */}
-              <div className="border border-border bg-muted/30 p-4 rounded-[6px]">
-                <p className="label-tag mb-2">API Endpoint Reference</p>
-                <div className="space-y-1 text-xs font-mono text-muted-foreground">
-                  <p>
-                    <span className="text-secondary">GET</span>{" "}
-                    /v1/demo/cases/:case_id/report?mode={mode}
-                  </p>
-                  {mode === "zk" && (
-                    <p>
-                      <span className="text-secondary">GET</span>{" "}
-                      /v1/demo/attestation-types
-                    </p>
-                  )}
-                </div>
-              </div>
             </motion.div>
           )}
         </AnimatePresence>
@@ -782,7 +766,7 @@ const Demo = () => {
               <Play className="w-6 h-6 text-primary" />
             </div>
             <p className="text-sm text-muted-foreground">
-              Select a mode and click <strong className="text-foreground">Run Demo Scan</strong> to simulate a Zcash compliance audit.
+              Select a mode and click <strong className="text-foreground">Run Scan</strong> to begin a Zcash compliance audit.
             </p>
           </motion.div>
         )}
@@ -793,7 +777,7 @@ const Demo = () => {
         <div className="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-3">
           <Logo size={18} />
           <p className="text-[10px] text-muted-foreground uppercase tracking-wider">
-            Demo Sandbox — Mock data only. No live chain interaction.
+            Privacy-compliance infrastructure for the shielded web.
           </p>
         </div>
       </footer>
