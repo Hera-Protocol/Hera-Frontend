@@ -510,7 +510,10 @@ const Demo = () => {
         setTerminalLines((prev) => {
           const updated = [...prev];
           // Mark previous loading line as ok
-          const lastLoading = updated.findLastIndex((l) => l.status === "loading");
+          let lastLoading = -1;
+          for (let j = updated.length - 1; j >= 0; j--) {
+            if (updated[j].status === "loading") { lastLoading = j; break; }
+          }
           if (lastLoading >= 0) updated[lastLoading] = { ...updated[lastLoading], status: "ok" };
           // Add new line
           updated.push({
