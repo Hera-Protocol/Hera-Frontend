@@ -14,7 +14,6 @@ import {
   Shield,
   ShieldCheck,
   Terminal,
-  Zap,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Logo } from "@/components/Logo";
@@ -603,8 +602,8 @@ const Demo = () => {
               <span className="text-primary">Zcash audit</span>
             </h1>
             <p className="mt-4 text-muted-foreground max-w-xl mx-auto">
-              Scan shielded Zcash Sapling activity using a viewing key. Toggle between Standard (Stage 2 signed report)
-              and ZK Mode (Stage 3 Caulk+ attestation) for the full compliance pipeline.
+              Import a viewing key, sync directly with the chain, and generate
+              a cryptographically signed compliance report.
             </p>
           </motion.div>
         </div>
@@ -734,22 +733,6 @@ const Demo = () => {
                 <AttestationPanel attestation={reportData.attestation} />
               )}
 
-              {/* Mode explanation */}
-              <div className="border border-border bg-card p-5 rounded-[6px]">
-                <div className="flex items-start gap-3">
-                  <Zap className="w-4 h-4 text-primary mt-0.5 shrink-0" />
-                  <div>
-                    <p className="text-sm font-mono font-semibold mb-1">
-                      {mode === "standard" ? "Stage 2 — Standard Compliance" : "Stage 3 — ZK-Caulk+ Verification"}
-                    </p>
-                    <p className="text-xs text-muted-foreground leading-relaxed">
-                      {mode === "standard"
-                        ? "This report contains a cryptographically signed audit of all shielded transaction activity detected by the viewing key. The ed25519 signature ensures tamper-evidence. Suitable for standard regulatory reporting."
-                        : "This report includes an additional zero-knowledge attestation layer using the Caulk+ proof system. The ZK proof verifies compliance properties (e.g. total received exceeds a threshold) without revealing the underlying transaction data. This enables minimal-disclosure compliance."}
-                    </p>
-                  </div>
-                </div>
-              </div>
 
             </motion.div>
           )}
@@ -766,7 +749,7 @@ const Demo = () => {
               <Play className="w-6 h-6 text-primary" />
             </div>
             <p className="text-sm text-muted-foreground">
-              Select a mode and click <strong className="text-foreground">Run Scan</strong> to begin a Zcash compliance audit.
+              Ready to scan. Click <strong className="text-foreground">Run Scan</strong> to begin.
             </p>
           </motion.div>
         )}
