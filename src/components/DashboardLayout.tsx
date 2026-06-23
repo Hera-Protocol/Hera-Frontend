@@ -1,12 +1,13 @@
 import { ReactNode } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { LayoutDashboard, FolderOpen, FileText, KeyRound, Settings, ScrollText, Plus, ChevronDown, User } from "lucide-react";
+import { LayoutDashboard, FolderOpen, FileText, KeyRound, Settings, ScrollText, Plus, ChevronDown, User, Activity } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { useActiveWorkspace } from "@/lib/hera-hooks";
 import { useHeraConfig } from "@/lib/hera-config";
 
 const navItems = [
   { label: "Dashboard", path: "/dashboard", icon: LayoutDashboard },
+  { label: "Data Infusion", path: "/dashboard/data-infusion", icon: Activity },
   { label: "Cases", path: "/dashboard/cases", icon: FolderOpen },
   { label: "Reports", path: "/dashboard/reports", icon: FileText },
   { label: "Keys", path: "/dashboard/keys", icon: KeyRound },

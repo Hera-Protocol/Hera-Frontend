@@ -13,6 +13,7 @@ import Settings from "./pages/Settings.tsx";
 import Cases from "./pages/Cases.tsx";
 import Reports from "./pages/Reports.tsx";
 import Keys from "./pages/Keys.tsx";
+import DataInfusion from "./pages/DataInfusion.tsx";
 import Demo from "./pages/Demo.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import { HeraConfigProvider, useHeraConfig } from "@/lib/hera-config";
@@ -55,6 +56,7 @@ const App = () => (
               <Route path="/dashboard/reports" element={<Reports />} />
               <Route path="/dashboard/keys" element={<Keys />} />
               <Route path="/dashboard/case/:caseId" element={<CaseDetail />} />
+              <Route path="/dashboard/data-infusion" element={<DataInfusion />} />
               <Route path="/dashboard/audit" element={<AuditLog />} />
               <Route path="/dashboard/settings" element={<Settings />} />
             </Route>
