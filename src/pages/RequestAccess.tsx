@@ -7,34 +7,7 @@ import { HexBackground } from "@/components/HexBackground";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { toast } from "sonner";
-
-const orgTypes = [
-  "Compliance / RegTech",
-  "Auditor / Accounting Firm",
-  "Exchange / Custodian",
-  "Foundation / Protocol Team",
-  "Law Enforcement / Government",
-  "Other",
-];
-
-const chainOptions = ["Zcash", "Namada", "Both"];
-
-const useCases = [
-  "Travel Rule compliance",
-  "Internal treasury audit",
-  "Regulator reporting",
-  "Investigations / forensics",
-  "Tax reporting",
-  "Other",
-];
 
 const trustBullets = [
   { icon: Lock, text: "Viewing keys never leave your workspace unencrypted" },
@@ -50,18 +23,13 @@ const RequestAccess = () => {
   const [form, setForm] = useState({
     fullName: "",
     workEmail: "",
-    organization: "",
     role: "",
-    orgType: "",
-    chain: "",
-    useCase: "",
-    volume: "",
     notes: "",
   });
 
   const update = (k: keyof typeof form, v: string) => setForm((f) => ({ ...f, [k]: v }));
 
-  const required = ["fullName", "workEmail", "organization", "orgType", "chain"] as const;
+  const required = ["fullName", "workEmail"] as const;
   const missing = required.some((k) => !form[k].trim());
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -172,41 +140,27 @@ const RequestAccess = () => {
             ) : (
               <form onSubmit={handleSubmit} className="space-y-5">
                 <div>
-                  <p className="text-[11px] font-mono uppercase tracking-wider text-muted-foreground mb-1">
-                    Section 01
-                  </p>
                   <h2 className="text-base font-mono font-semibold mb-4">Contact</h2>
                   <div className="grid sm:grid-cols-2 gap-4">
-                    <Field label="Full name" required>
+                    <Field label="Name" required>
                       <Input
                         value={form.fullName}
                         onChange={(e) => update("fullName", e.target.value)}
-                        placeholder="Jane Doe"
                         maxLength={100}
                       />
                     </Field>
-                    <Field label="Work email" required>
+                    <Field label="Email" required>
                       <Input
                         type="email"
                         value={form.workEmail}
                         onChange={(e) => update("workEmail", e.target.value)}
-                        placeholder="jane@firm.com"
                         maxLength={255}
                       />
                     </Field>
-                    <Field label="Organization" required>
-                      <Input
-                        value={form.organization}
-                        onChange={(e) => update("organization", e.target.value)}
-                        placeholder="Acme Compliance LLC"
-                        maxLength={120}
-                      />
-                    </Field>
-                    <Field label="Role / title">
+                    <Field label="Role">
                       <Input
                         value={form.role}
                         onChange={(e) => update("role", e.target.value)}
-                        placeholder="Head of Compliance"
                         maxLength={120}
                       />
                     </Field>
@@ -214,74 +168,10 @@ const RequestAccess = () => {
                 </div>
 
                 <div className="border-t border-border pt-5">
-                  <p className="text-[11px] font-mono uppercase tracking-wider text-muted-foreground mb-1">
-                    Section 02
-                  </p>
-                  <h2 className="text-base font-mono font-semibold mb-4">Workspace</h2>
-                  <div className="grid sm:grid-cols-2 gap-4">
-                    <Field label="Organization type" required>
-                      <Select value={form.orgType} onValueChange={(v) => update("orgType", v)}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select type" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {orgTypes.map((o) => (
-                            <SelectItem key={o} value={o}>
-                              {o}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </Field>
-                    <Field label="Primary chain" required>
-                      <Select value={form.chain} onValueChange={(v) => update("chain", v)}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Zcash / Namada" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {chainOptions.map((o) => (
-                            <SelectItem key={o} value={o}>
-                              {o}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </Field>
-                    <Field label="Primary use case">
-                      <Select value={form.useCase} onValueChange={(v) => update("useCase", v)}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select use case" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {useCases.map((o) => (
-                            <SelectItem key={o} value={o}>
-                              {o}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </Field>
-                    <Field label="Expected monthly scans">
-                      <Input
-                        value={form.volume}
-                        onChange={(e) => update("volume", e.target.value)}
-                        placeholder="e.g. 50–200"
-                        maxLength={40}
-                      />
-                    </Field>
-                  </div>
-                </div>
-
-                <div className="border-t border-border pt-5">
-                  <p className="text-[11px] font-mono uppercase tracking-wider text-muted-foreground mb-1">
-                    Section 03
-                  </p>
-                  <h2 className="text-base font-mono font-semibold mb-4">Context</h2>
                   <Field label="Anything else we should know?">
                     <Textarea
                       value={form.notes}
                       onChange={(e) => update("notes", e.target.value)}
-                      placeholder="Specific compliance regime, jurisdiction, timelines…"
                       rows={4}
                       maxLength={1000}
                     />

@@ -298,7 +298,7 @@ function PricingCardComponent({ plan }: { plan: PricingCard }) {
         {plan.validity}
       </div>
       <a
-        href="mailto:contact@heraprotocol.io"
+        href="mailto:contact@heralayer.com"
         className={`block text-center py-2.5 rounded-[8px] text-xs font-medium transition-colors ${
           plan.featured
             ? "bg-primary text-primary-foreground hover:bg-primary/90"
@@ -412,12 +412,14 @@ const Landing = () => {
             <a href="#mica" className="text-xs uppercase tracking-[0.08em] text-muted-foreground hover:text-foreground transition-colors hidden md:block">
               MiCA
             </a>
-            <Link
-              to="/request-access"
+            <a
+              href="https://calendar.app.google/ew98PiFvT5MeBGiL8"
+              target="_blank"
+              rel="noopener noreferrer"
               className="inline-flex items-center px-4 py-2 bg-primary text-primary-foreground text-xs uppercase tracking-[0.1em] font-semibold rounded-[6px] hover:bg-primary/90 transition-colors"
             >
               Book a Demo
-            </Link>
+            </a>
           </div>
         </nav>
 
@@ -440,12 +442,14 @@ const Landing = () => {
               monitoring, and regulator-ready audit documentation.
             </p>
             <div className="mt-10 flex flex-col sm:flex-row gap-3 justify-center">
-              <Link
-                to="/request-access"
+              <a
+                href="https://calendar.app.google/ew98PiFvT5MeBGiL8"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="w-full sm:w-auto px-8 py-3 bg-primary text-primary-foreground text-sm uppercase tracking-[0.08em] font-medium hover:bg-primary/90 transition-colors text-center"
               >
                 Book a Demo
-              </Link>
+              </a>
               <a
                 href="#reports"
                 className="w-full sm:w-auto px-8 py-3 border border-border text-sm uppercase tracking-[0.08em] font-medium text-muted-foreground hover:text-foreground hover:border-muted-foreground/50 transition-colors text-center"
@@ -710,7 +714,7 @@ const Landing = () => {
               </p>
             </div>
             <a
-              href="mailto:contact@heraprotocol.io"
+              href="mailto:contact@heralayer.com"
               className="px-5 py-2.5 bg-primary text-primary-foreground text-xs uppercase tracking-[0.1em] font-medium rounded-[8px] hover:bg-primary/90 transition-colors shrink-0"
             >
               Get in touch
@@ -858,13 +862,15 @@ const Landing = () => {
                 </li>
               ))}
             </ul>
-            <Link
-              to="/request-access"
+            <a
+              href="https://calendar.app.google/ew98PiFvT5MeBGiL8"
+              target="_blank"
+              rel="noopener noreferrer"
               className="inline-flex items-center gap-2 px-6 py-2.5 bg-primary text-primary-foreground text-xs uppercase tracking-[0.1em] font-medium hover:bg-primary/90 transition-colors"
             >
               Talk to Us About MiCA
               <ArrowRight className="w-3.5 h-3.5" />
-            </Link>
+            </a>
           </motion.div>
         </div>
       </section>
@@ -921,13 +927,15 @@ const Landing = () => {
               platform — Hera is built for both.
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              <Link
-                to="/request-access"
+              <a
+                href="https://calendar.app.google/ew98PiFvT5MeBGiL8"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="px-8 py-3 bg-primary text-primary-foreground text-sm uppercase tracking-[0.08em] font-medium hover:bg-primary/90 transition-colors inline-flex items-center justify-center gap-2"
               >
                 Book a Demo
                 <ArrowRight className="w-4 h-4" />
-              </Link>
+              </a>
               <a
                 href="#reports"
                 className="px-8 py-3 border border-border text-sm uppercase tracking-[0.08em] font-medium text-muted-foreground hover:text-foreground hover:border-muted-foreground/50 transition-colors text-center"
@@ -935,7 +943,7 @@ const Landing = () => {
                 Get a Compliance Report
               </a>
               <a
-                href="mailto:contact@heraprotocol.io"
+                href="mailto:contact@heralayer.com"
                 className="px-8 py-3 border border-border text-sm uppercase tracking-[0.08em] font-medium text-muted-foreground hover:text-foreground hover:border-muted-foreground/50 transition-colors text-center"
               >
                 Contact Us
@@ -991,19 +999,19 @@ const Landing = () => {
                   <Link to="/request-access" className="text-sm text-muted-foreground hover:text-foreground transition-colors">About</Link>
                 </li>
                 <li>
-                  <a href="mailto:contact@heraprotocol.io" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Contact</a>
+                  <a href="mailto:contact@heralayer.com" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Contact</a>
                 </li>
                 <li>
-                  <Link to="/request-access" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Book a Demo</Link>
+                  <a href="https://calendar.app.google/ew98PiFvT5MeBGiL8" target="_blank" rel="noopener noreferrer" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Book a Demo</a>
                 </li>
               </ul>
             </div>
           </div>
 
           <div className="border-t border-border pt-6 flex flex-col md:flex-row items-center justify-between gap-4">
-            <a href="mailto:contact@heraprotocol.io" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
+            <a href="mailto:contact@heralayer.com" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
               <Mail className="w-3.5 h-3.5" />
-              contact@heraprotocol.io
+              contact@heralayer.com
             </a>
             <p className="text-xs text-muted-foreground">
               &copy; {new Date().getFullYear()} Hera Protocol. All rights reserved.
