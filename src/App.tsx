@@ -15,6 +15,7 @@ import Reports from "./pages/Reports.tsx";
 import Keys from "./pages/Keys.tsx";
 import DataInfusion from "./pages/DataInfusion.tsx";
 import Demo from "./pages/Demo.tsx";
+import StellarDemo from "./pages/StellarDemo.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import { HeraConfigProvider, useHeraConfig } from "@/lib/hera-config";
 
@@ -49,6 +50,7 @@ const App = () => (
             <Route path="/login" element={<Login />} />
             <Route path="/request-access" element={<RequestAccess />} />
             <Route path="/demo" element={<Demo />} />
+            <Route path="/stellar/demo" element={<StellarDemo />} />
             <Route element={<RequireConnection />}>
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/dashboard/new-case" element={<NewCase />} />
