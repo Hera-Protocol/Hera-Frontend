@@ -39,6 +39,7 @@ import {
   type ResolvedAccount,
   type AccountForm,
 } from "@/data/stellar-demo-data";
+import { generateStellarPdf } from "@/lib/stellar-pdf";
 
 /* ─── Types ──────────────────────────────────────────── */
 
@@ -932,18 +933,10 @@ const StellarDemo = () => {
     setScanPhase("idle");
   };
 
-  const downloadMockJson = () => {
+  const downloadPdf = () => {
     if (!reportData) return;
-    const blob = new Blob([JSON.stringify(reportData, null, 2)], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = `hera-stellar-${mode}-report.json`;
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-    URL.revokeObjectURL(url);
-    toast("Stellar compliance report downloaded");
+    generateStellarPdf(reportData);
+    toast("Stellar compliance audit report downloaded");
   };
 
   return (
@@ -1097,11 +1090,11 @@ const StellarDemo = () => {
                   </p>
                 </div>
                 <button
-                  onClick={downloadMockJson}
+                  onClick={downloadPdf}
                   className="inline-flex items-center gap-2 px-4 py-2 border border-secondary text-secondary text-xs uppercase tracking-[0.08em] font-medium hover:bg-secondary/10 transition-colors rounded-[6px]"
                 >
                   <Download className="w-3.5 h-3.5" />
-                  Export JSON
+                  Export Audit Report
                 </button>
               </div>
 
