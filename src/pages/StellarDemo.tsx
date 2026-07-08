@@ -65,16 +65,16 @@ const SCAN_PHASES: { phase: ScanPhase }[] = [
 /* ─── Color Maps ─────────────────────────────────────── */
 
 const eventTypeColor: Record<string, string> = {
-  PAYMENT: "text-secondary",
-  PATH_PAYMENT: "text-primary",
+  PAYMENT: "text-primary",
+  PATH_PAYMENT: "text-secondary",
   CREATE_ACCOUNT: "text-zcash",
   CLAWBACK: "text-destructive",
   FEE: "text-muted-foreground",
 };
 
 const eventTypeBg: Record<string, string> = {
-  PAYMENT: "bg-secondary/15 text-secondary",
-  PATH_PAYMENT: "bg-primary/15 text-primary",
+  PAYMENT: "bg-primary/15 text-primary",
+  PATH_PAYMENT: "bg-secondary/15 text-secondary",
   CREATE_ACCOUNT: "bg-zcash/15 text-zcash",
   CLAWBACK: "bg-destructive/15 text-destructive",
   FEE: "bg-muted text-muted-foreground",
@@ -102,9 +102,9 @@ const riskColor: Record<string, string> = {
 };
 
 const accountFormColor: Record<AccountForm, string> = {
-  G_address: "bg-secondary/15 text-secondary border-secondary/30",
+  G_address: "bg-primary/15 text-primary border-primary/30",
   M_muxed: "bg-blue-400/15 text-blue-400 border-blue-400/30",
-  G_memo: "bg-primary/15 text-primary border-primary/30",
+  G_memo: "bg-secondary/15 text-secondary border-secondary/30",
 };
 
 /* ─── Helpers ────────────────────────────────────────── */
@@ -137,7 +137,7 @@ function ScanTerminal({
           hera scan --chain stellar --account {phase !== "idle" ? "..." : "ready"}
         </span>
         {phase !== "idle" && phase !== "complete" && (
-          <span className="ml-auto w-2 h-2 rounded-full bg-secondary status-pulse" />
+          <span className="ml-auto w-2 h-2 rounded-full bg-primary status-pulse" />
         )}
         {phase === "complete" && (
           <CheckCircle2 className="ml-auto w-3.5 h-3.5 text-success" />
@@ -157,7 +157,7 @@ function ScanTerminal({
                   ? "text-success"
                   : line.status === "done"
                   ? "text-success"
-                  : "text-secondary"
+                  : "text-primary"
               }
             >
               [{line.status === "ok" ? "OK" : line.status === "done" ? "DONE" : ".."}]
@@ -191,7 +191,7 @@ function ModeToggle({
         disabled={disabled}
         className={`px-4 py-2 text-xs uppercase tracking-[0.08em] font-medium transition-colors ${
           mode === "compliance"
-            ? "bg-secondary text-secondary-foreground"
+            ? "bg-primary text-primary-foreground"
             : "bg-card text-muted-foreground hover:text-foreground"
         } ${disabled ? "opacity-50 cursor-not-allowed" : ""}`}
       >
@@ -219,7 +219,7 @@ function ModeToggle({
 function SummaryCards({ data }: { data: StellarDemoResponse }) {
   const { summary } = data.report;
   const cards = [
-    { label: "Total Volume", value: `$${summary.total_volume_usd}`, accent: "text-secondary" },
+    { label: "Total Volume", value: `$${summary.total_volume_usd}`, accent: "text-primary" },
     { label: "Payments", value: summary.total_payments.toString(), accent: "text-foreground" },
     { label: "KYC Coverage", value: summary.kyc_coverage, accent: "text-success" },
     { label: "Unique Accounts", value: summary.unique_accounts.toString(), accent: "text-foreground" },
@@ -254,11 +254,11 @@ function SepProtocolBar() {
     <motion.div
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
-      className="border border-secondary/20 bg-secondary/5 p-5 rounded-[6px] space-y-4"
+      className="border border-primary/20 bg-primary/5 p-5 rounded-[6px] space-y-4"
     >
       <div className="flex items-center gap-2">
-        <Globe className="w-4 h-4 text-secondary" />
-        <p className="label-tag text-secondary">Native SEP Protocol Support</p>
+        <Globe className="w-4 h-4 text-primary" />
+        <p className="label-tag text-primary">Native SEP Protocol Support</p>
       </div>
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {SEP_PROTOCOLS.map((sep) => (
@@ -267,11 +267,11 @@ function SepProtocolBar() {
             onClick={() => setExpanded(expanded === sep.id ? null : sep.id)}
             className={`text-left p-3 border rounded-[6px] transition-all ${
               expanded === sep.id
-                ? "border-secondary/40 bg-secondary/10"
-                : "border-border hover:border-secondary/20"
+                ? "border-primary/40 bg-primary/10"
+                : "border-border hover:border-primary/20"
             }`}
           >
-            <p className="text-xs font-mono font-bold text-secondary">{sep.id}</p>
+            <p className="text-xs font-mono font-bold text-primary">{sep.id}</p>
             <p className="text-[11px] text-muted-foreground mt-0.5">{sep.label}</p>
           </button>
         ))}
@@ -284,7 +284,7 @@ function SepProtocolBar() {
             exit={{ height: 0, opacity: 0 }}
             className="overflow-hidden"
           >
-            <p className="text-xs text-muted-foreground leading-relaxed pt-2 border-t border-secondary/10">
+            <p className="text-xs text-muted-foreground leading-relaxed pt-2 border-t border-primary/10">
               {SEP_PROTOCOLS.find((s) => s.id === expanded)?.description}
             </p>
           </motion.div>
@@ -368,7 +368,7 @@ function AccountResolutionPanel({ events }: { events: StellarDemoEvent[] }) {
         </span>
       </div>
       <p className="text-xs text-muted-foreground leading-relaxed">
-        Hera resolves all three Stellar account forms — <span className="text-secondary font-medium">G... addresses</span>,{" "}
+        Hera resolves all three Stellar account forms — <span className="text-primary font-medium">G... addresses</span>,{" "}
         <span className="text-blue-400 font-medium">M... muxed accounts</span>, and{" "}
         <span className="text-primary font-medium">G... + memo pairs</span> — to individual customer records.
         Competing platforms collapse muxed accounts into the parent G... address, losing sub-account granularity.
@@ -388,7 +388,7 @@ function Sep10Panel({ sessions }: { sessions: Sep10Auth[] }) {
   return (
     <div className="space-y-3">
       <div className="flex items-center gap-2">
-        <KeyRound className="w-4 h-4 text-secondary" />
+        <KeyRound className="w-4 h-4 text-primary" />
         <h3 className="text-sm font-mono font-semibold uppercase tracking-wider text-muted-foreground">
           SEP-10 Authentication Sessions
         </h3>
@@ -418,7 +418,7 @@ function Sep10Panel({ sessions }: { sessions: Sep10Auth[] }) {
                 <td className="px-4 py-3 text-xs text-muted-foreground">
                   {session.memo ? `${session.memo_type}:${session.memo}` : "—"}
                 </td>
-                <td className="px-4 py-3 text-xs font-mono text-secondary">{session.home_domain}</td>
+                <td className="px-4 py-3 text-xs font-mono text-primary">{session.home_domain}</td>
                 <td className="px-4 py-3 text-xs font-mono text-muted-foreground">
                   {session.client_domain || "—"}
                 </td>
@@ -677,14 +677,14 @@ function EventTimeline({ events }: { events: StellarDemoEvent[] }) {
                   <td className="px-4 py-3 text-xs font-mono text-muted-foreground">
                     <span className={`inline-block w-1.5 h-1.5 rounded-full mr-1.5 ${
                       event.source_account.form === "M_muxed" ? "bg-blue-400" :
-                      event.source_account.form === "G_memo" ? "bg-primary" : "bg-secondary"
+                      event.source_account.form === "G_memo" ? "bg-secondary" : "bg-primary"
                     }`} />
                     {event.source_account.display}
                   </td>
                   <td className="px-4 py-3 text-xs font-mono text-muted-foreground">
                     <span className={`inline-block w-1.5 h-1.5 rounded-full mr-1.5 ${
                       event.destination_account.form === "M_muxed" ? "bg-blue-400" :
-                      event.destination_account.form === "G_memo" ? "bg-primary" : "bg-secondary"
+                      event.destination_account.form === "G_memo" ? "bg-secondary" : "bg-primary"
                     }`} />
                     {event.destination_account.display}
                   </td>
@@ -734,8 +734,8 @@ function EventTimeline({ events }: { events: StellarDemoEvent[] }) {
             exit={{ opacity: 0, height: 0 }}
             className="overflow-hidden"
           >
-            <div className="border border-secondary/20 bg-secondary/5 p-4 rounded-[6px] space-y-3">
-              <p className="label-tag text-secondary">Travel Rule Data — {truncateHash(selectedEvent.tx_hash, 8)}</p>
+            <div className="border border-primary/20 bg-primary/5 p-4 rounded-[6px] space-y-3">
+              <p className="label-tag text-primary">Travel Rule Data — {truncateHash(selectedEvent.tx_hash, 8)}</p>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
                 <div>
                   <p className="text-muted-foreground mb-0.5">Originator</p>
@@ -793,9 +793,9 @@ function FlowBreakdown({ counts }: { counts: Record<string, number> }) {
                   transition={{ duration: 0.6, delay: 0.2 }}
                   className={`h-full rounded-full ${
                     type.toUpperCase() === "PAYMENT"
-                      ? "bg-secondary"
-                      : type.toUpperCase() === "PATH_PAYMENT"
                       ? "bg-primary"
+                      : type.toUpperCase() === "PATH_PAYMENT"
+                      ? "bg-secondary"
                       : "bg-muted-foreground/50"
                   }`}
                 />
@@ -984,7 +984,7 @@ const StellarDemo = () => {
           <Link to="/">
             <Logo size={24} />
           </Link>
-          <span className="text-[10px] uppercase tracking-[0.12em] font-medium px-2 py-0.5 bg-secondary/15 text-secondary rounded-full">
+          <span className="text-[10px] uppercase tracking-[0.12em] font-medium px-2 py-0.5 bg-primary/15 text-primary rounded-full">
             Stellar Compliance
           </span>
         </div>
@@ -1014,7 +1014,7 @@ const StellarDemo = () => {
             <p className="label-tag mb-3">Stellar-Native Compliance Engine</p>
             <h1 className="text-3xl md:text-5xl font-mono font-bold leading-tight">
               Real-Time{" "}
-              <span className="text-secondary">Stellar Compliance</span>{" "}
+              <span className="text-primary">Stellar Compliance</span>{" "}
               Audit
             </h1>
             <p className="mt-4 text-muted-foreground max-w-2xl mx-auto leading-relaxed">
@@ -1024,7 +1024,7 @@ const StellarDemo = () => {
             </p>
             <div className="flex items-center justify-center gap-3 mt-6 flex-wrap">
               {["SEP-10", "SEP-12", "SEP-9", "SEP-8", "Horizon API"].map((sep) => (
-                <span key={sep} className="px-3 py-1 text-[11px] font-mono font-bold text-secondary bg-secondary/10 border border-secondary/20 rounded-full">
+                <span key={sep} className="px-3 py-1 text-[11px] font-mono font-bold text-primary bg-primary/10 border border-primary/20 rounded-full">
                   {sep}
                 </span>
               ))}
@@ -1041,8 +1041,8 @@ const StellarDemo = () => {
         {/* Account Selector */}
         <div className="border border-border bg-card p-4 rounded-[6px] space-y-3">
           <div className="flex items-center gap-2 flex-wrap">
-            <Globe className="w-4 h-4 text-secondary" />
-            <p className="label-tag text-secondary">Target Account — Stellar Mainnet</p>
+            <Globe className="w-4 h-4 text-primary" />
+            <p className="label-tag text-primary">Target Account — Stellar Mainnet</p>
             <span className="px-2 py-0.5 text-[9px] uppercase tracking-wider font-medium bg-success/10 text-success border border-success/20 rounded-full">
               Live on-chain data
             </span>
@@ -1060,11 +1060,11 @@ const StellarDemo = () => {
                 }}
                 className={`text-left p-3 border rounded-[6px] transition-all ${
                   selectedAccount.id === acct.id
-                    ? "border-secondary/40 bg-secondary/10"
-                    : "border-border hover:border-secondary/20"
+                    ? "border-primary/40 bg-primary/10"
+                    : "border-border hover:border-primary/20"
                 } ${isScanning ? "opacity-50 cursor-not-allowed" : ""}`}
               >
-                <p className="text-xs font-mono font-bold text-secondary">{acct.label}</p>
+                <p className="text-xs font-mono font-bold text-primary">{acct.label}</p>
                 <p className="text-[10px] text-muted-foreground mt-0.5">{acct.description}</p>
                 <p className="text-[10px] font-mono text-muted-foreground/60 mt-1">
                   {acct.address.slice(0, 8)}...{acct.address.slice(-4)}
@@ -1083,7 +1083,7 @@ const StellarDemo = () => {
             className={`inline-flex items-center gap-2 px-6 py-2.5 text-xs uppercase tracking-[0.08em] font-medium transition-colors rounded-[6px] ${
               isScanning
                 ? "bg-muted text-muted-foreground cursor-not-allowed"
-                : "bg-secondary text-secondary-foreground hover:bg-secondary/90"
+                : "bg-primary text-primary-foreground hover:bg-primary/90"
             }`}
           >
             {isScanning ? (
@@ -1118,13 +1118,13 @@ const StellarDemo = () => {
                         isComplete
                           ? "bg-success"
                           : isActive
-                          ? "bg-secondary"
+                          ? "bg-primary"
                           : "bg-muted/50"
                       }`}
                     />
                     <span
                       className={`text-[9px] uppercase tracking-wider ${
-                        isComplete ? "text-success" : isActive ? "text-secondary" : "text-muted-foreground/40"
+                        isComplete ? "text-success" : isActive ? "text-primary" : "text-muted-foreground/40"
                       }`}
                     >
                       {step.phase}
@@ -1154,7 +1154,7 @@ const StellarDemo = () => {
               <div className="flex flex-wrap items-center justify-between gap-4">
                 <div>
                   <h2 className="text-lg font-mono font-bold flex items-center gap-2">
-                    <FileText className="w-4 h-4 text-secondary" />
+                    <FileText className="w-4 h-4 text-primary" />
                     Stellar Compliance Audit Report
                     <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-normal ml-1">
                       v{reportData.report.manifest_version}
@@ -1171,7 +1171,7 @@ const StellarDemo = () => {
                 <div className="flex items-center gap-2">
                   <button
                     onClick={downloadPdf}
-                    className="inline-flex items-center gap-2 px-4 py-2 border border-secondary text-secondary text-xs uppercase tracking-[0.08em] font-medium hover:bg-secondary/10 transition-colors rounded-[6px]"
+                    className="inline-flex items-center gap-2 px-4 py-2 border border-primary text-primary text-xs uppercase tracking-[0.08em] font-medium hover:bg-primary/10 transition-colors rounded-[6px]"
                   >
                     <Download className="w-3.5 h-3.5" />
                     Export PDF
@@ -1223,8 +1223,8 @@ const StellarDemo = () => {
             animate={{ opacity: 1 }}
             className="flex flex-col items-center justify-center py-16 text-center"
           >
-            <div className="w-16 h-16 rounded-full bg-secondary/10 flex items-center justify-center mb-4">
-              <Play className="w-6 h-6 text-secondary" />
+            <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-4">
+              <Play className="w-6 h-6 text-primary" />
             </div>
             <p className="text-sm text-muted-foreground">
               Ready to scan <strong className="text-foreground">{selectedAccount.label}</strong>. Click <strong className="text-foreground">Run Compliance Scan</strong> to begin.
