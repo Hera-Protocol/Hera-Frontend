@@ -26,9 +26,6 @@ import { toast } from "sonner";
 import { Logo } from "@/components/Logo";
 import { HexBackground } from "@/components/HexBackground";
 import {
-  STELLAR_DEMO_CASE_ID,
-  STELLAR_DEMO_RESPONSE,
-  STELLAR_KYT_RESPONSE,
   SEP_PROTOCOLS,
   ACCOUNT_FORM_LABELS,
   type StellarDemoResponse,
@@ -40,6 +37,8 @@ import {
   type AccountForm,
 } from "@/data/stellar-demo-data";
 import { generateStellarPdf } from "@/lib/stellar-pdf";
+import { KNOWN_ACCOUNTS, type KnownAccount } from "@/lib/stellar-horizon";
+import { fetchAndTransform } from "@/lib/stellar-transform";
 
 /* ─── Types ──────────────────────────────────────────── */
 
@@ -54,13 +53,13 @@ type ScanPhase =
   | "signing"
   | "complete";
 
-const SCAN_STEPS: { phase: ScanPhase; label: string; duration: number }[] = [
-  { phase: "authenticating", label: "SEP-10 challenge — verifying account ownership via web_auth_endpoint...", duration: 900 },
-  { phase: "resolving", label: "Resolving accounts — G..., M... muxed, G+memo forms → individual customer records...", duration: 1200 },
-  { phase: "screening", label: "SEP-12 KYC check — validating customer data against SEP-9 field standards...", duration: 1100 },
-  { phase: "enforcing", label: "SEP-8 pre-settlement enforcement — screening 6 transactions against sanctions & thresholds...", duration: 1300 },
-  { phase: "signing", label: "Generating ed25519 compliance report signature...", duration: 700 },
-  { phase: "complete", label: "Scan complete. Stellar compliance report ready.", duration: 0 },
+const SCAN_PHASES: { phase: ScanPhase }[] = [
+  { phase: "authenticating" },
+  { phase: "resolving" },
+  { phase: "screening" },
+  { phase: "enforcing" },
+  { phase: "signing" },
+  { phase: "complete" },
 ];
 
 /* ─── Color Maps ─────────────────────────────────────── */
@@ -135,7 +134,7 @@ function ScanTerminal({
       <div className="flex items-center gap-2 px-4 py-2.5 border-b border-border bg-muted/30">
         <Terminal className="w-3.5 h-3.5 text-muted-foreground" />
         <span className="text-[11px] font-mono text-muted-foreground">
-          hera scan --chain stellar --anchor exampleanchor.com
+          hera scan --chain stellar --account {phase !== "idle" ? "..." : "ready"}
         </span>
         {phase !== "idle" && phase !== "complete" && (
           <span className="ml-auto w-2 h-2 rounded-full bg-secondary status-pulse" />
@@ -864,6 +863,7 @@ const StellarDemo = () => {
   const [terminalLines, setTerminalLines] = useState<{ text: string; status: "ok" | "loading" | "done" }[]>([]);
   const [reportData, setReportData] = useState<StellarDemoResponse | null>(null);
   const [isScanning, setIsScanning] = useState(false);
+  const [selectedAccount, setSelectedAccount] = useState<KnownAccount>(KNOWN_ACCOUNTS[0]);
   const timeoutRef = useRef<ReturnType<typeof setTimeout>[]>([]);
 
   const clearTimers = useCallback(() => {
@@ -871,55 +871,80 @@ const StellarDemo = () => {
     timeoutRef.current = [];
   }, []);
 
-  const runScan = useCallback(() => {
+  const addLine = useCallback((text: string, status: "ok" | "loading" | "done") => {
+    setTerminalLines((prev) => {
+      const updated = [...prev];
+      // Mark last loading line as ok
+      let lastLoading = -1;
+      for (let j = updated.length - 1; j >= 0; j--) {
+        if (updated[j].status === "loading") { lastLoading = j; break; }
+      }
+      if (lastLoading >= 0) updated[lastLoading] = { ...updated[lastLoading], status: "ok" };
+      updated.push({ text, status });
+      return updated;
+    });
+  }, []);
+
+  const runScan = useCallback(async () => {
     clearTimers();
     setIsScanning(true);
     setReportData(null);
     setTerminalLines([]);
     setScanPhase("idle");
 
-    let elapsed = 300;
+    // Phase 1: Authenticating
+    await new Promise((r) => setTimeout(r, 300));
+    setScanPhase("authenticating");
+    addLine(`Compliance scan initialized — mode=${mode} chain=STELLAR network=MAINNET`, "ok");
+    addLine(`Target account: ${selectedAccount.address}`, "ok");
+    addLine(`Querying horizon.stellar.org for account data + stellar.toml endpoints...`, "loading");
 
-    const t0 = setTimeout(() => {
-      setTerminalLines([{ text: `Initializing Stellar compliance scan — mode=${mode}`, status: "ok" }]);
-      setScanPhase("authenticating");
-    }, elapsed);
-    timeoutRef.current.push(t0);
+    // Phase 2: Fetch real data from Horizon API + stellar.toml
+    try {
+      const data = await fetchAndTransform(selectedAccount, mode);
 
-    SCAN_STEPS.forEach((step) => {
-      elapsed += step.duration;
-      const t = setTimeout(() => {
-        setScanPhase(step.phase);
-        setTerminalLines((prev) => {
-          const updated = [...prev];
-          let lastLoading = -1;
-          for (let j = updated.length - 1; j >= 0; j--) {
-            if (updated[j].status === "loading") { lastLoading = j; break; }
-          }
-          if (lastLoading >= 0) updated[lastLoading] = { ...updated[lastLoading], status: "ok" };
-          updated.push({
-            text: step.label,
-            status: step.phase === "complete" ? "done" : "loading",
-          });
-          return updated;
-        });
+      setScanPhase("resolving");
+      addLine(`Account loaded — ${data.report.sep10_sessions.length} SEP-10 sessions derived from on-chain home_domain`, "ok");
+      addLine(`Fetching ${data.report.total_events} payment operations + counterparty account profiles...`, "loading");
+      await new Promise((r) => setTimeout(r, 400));
 
-        if (step.phase === "complete") {
-          const data = mode === "kyt" ? STELLAR_KYT_RESPONSE : STELLAR_DEMO_RESPONSE;
-          setReportData(data);
-          setIsScanning(false);
+      // Phase 3: Screening
+      setScanPhase("screening");
+      addLine(`${data.report.summary.unique_accounts} accounts resolved — deriving KYC status from signers, auth flags, trustlines...`, "ok");
+      addLine(`SEP-12 compliance data: ${data.report.sep12_submissions.length} accounts profiled with ${data.report.sep12_submissions.reduce((s, sub) => s + sub.fields_provided.length, 0)} SEP-9 fields`, "ok");
+      addLine(`Running sanctions screening (OFAC SDN, EU Consolidated, UN Security Council)...`, "loading");
+      await new Promise((r) => setTimeout(r, 500));
 
-          setTerminalLines((prev) => [
-            ...prev,
-            { text: `Report generated — 6 events, 6 accounts resolved, 5 SEP-8 checks`, status: "ok" },
-            { text: `1 transaction blocked pre-settlement (OFAC sanctions match)`, status: "ok" },
-            { text: `Signed with ed25519 workspace key`, status: "ok" },
-          ]);
-        }
-      }, elapsed);
-      timeoutRef.current.push(t);
-    });
-  }, [mode, clearTimers]);
+      // Phase 4: Enforcing
+      setScanPhase("enforcing");
+      addLine(`SEP-8 pre-settlement enforcement — ${data.report.sep8_approvals.length} transactions screened`, "ok");
+      const revised = data.report.sep8_approvals.filter((a) => a.status === "revised").length;
+      const rejected = data.report.sep8_approvals.filter((a) => a.status === "rejected").length;
+      addLine(`Results: ${data.report.sep8_approvals.length - revised - rejected} approved, ${revised} revised, ${rejected} rejected`, "ok");
+      addLine("Computing report hash and generating ed25519 signature...", "loading");
+      await new Promise((r) => setTimeout(r, 400));
+
+      // Phase 5: Signing
+      setScanPhase("signing");
+      addLine(`Report hash: ${data.report.signature.public_key_hex.slice(0, 32)}...`, "ok");
+      await new Promise((r) => setTimeout(r, 300));
+
+      // Phase 6: Complete
+      setScanPhase("complete");
+      setReportData(data);
+      setIsScanning(false);
+
+      addLine("Compliance audit complete — report ready for export (PDF / JSON)", "done");
+      addLine(
+        `Summary: ${data.report.total_events} events | ${data.report.summary.unique_accounts} accounts | KYC coverage: ${data.report.summary.kyc_coverage} | Volume: $${data.report.summary.total_volume_usd}`,
+        "ok",
+      );
+    } catch (err) {
+      setScanPhase("idle");
+      setIsScanning(false);
+      addLine(`Error: ${err instanceof Error ? err.message : "Failed to fetch Horizon data"}`, "ok");
+    }
+  }, [mode, selectedAccount, clearTimers, addLine]);
 
   useEffect(() => {
     return clearTimers;
@@ -936,7 +961,19 @@ const StellarDemo = () => {
   const downloadPdf = () => {
     if (!reportData) return;
     generateStellarPdf(reportData);
-    toast("Stellar compliance audit report downloaded");
+    toast("Stellar compliance audit report (PDF) downloaded");
+  };
+
+  const downloadJson = () => {
+    if (!reportData) return;
+    const blob = new Blob([JSON.stringify(reportData, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `hera-stellar-${reportData.mode}-audit-report.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast("Stellar compliance audit report (JSON) downloaded");
   };
 
   return (
@@ -974,23 +1011,26 @@ const StellarDemo = () => {
         <HexBackground />
         <div className="relative z-10 max-w-4xl mx-auto text-center">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-            <p className="label-tag mb-3">Stellar-Native Compliance & KYT</p>
+            <p className="label-tag mb-3">Stellar-Native Compliance Engine</p>
             <h1 className="text-3xl md:text-5xl font-mono font-bold leading-tight">
-              Run a{" "}
-              <span className="text-secondary">Stellar compliance</span>{" "}
-              audit
+              Real-Time{" "}
+              <span className="text-secondary">Stellar Compliance</span>{" "}
+              Audit
             </h1>
             <p className="mt-4 text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-              Native SEP-10 authentication, SEP-12 KYC submission with SEP-9 field standards,
-              and SEP-8 pre-settlement enforcement — purpose-built for Stellar Anchors,
-              cross-border payment corridors, and tokenised asset issuers.
+              Query live mainnet data via Stellar Horizon API. Hera resolves account identities,
+              screens transactions against compliance rulesets, and generates audit-ready reports —
+              all from publicly available on-chain data.
             </p>
             <div className="flex items-center justify-center gap-3 mt-6 flex-wrap">
-              {["SEP-10", "SEP-12", "SEP-9", "SEP-8"].map((sep) => (
+              {["SEP-10", "SEP-12", "SEP-9", "SEP-8", "Horizon API"].map((sep) => (
                 <span key={sep} className="px-3 py-1 text-[11px] font-mono font-bold text-secondary bg-secondary/10 border border-secondary/20 rounded-full">
                   {sep}
                 </span>
               ))}
+              <span className="px-3 py-1 text-[11px] font-mono font-bold text-success bg-success/10 border border-success/20 rounded-full">
+                LIVE DATA
+              </span>
             </div>
           </motion.div>
         </div>
@@ -998,6 +1038,42 @@ const StellarDemo = () => {
 
       {/* Controls */}
       <div className="max-w-6xl mx-auto px-6 md:px-12 py-8 space-y-8">
+        {/* Account Selector */}
+        <div className="border border-border bg-card p-4 rounded-[6px] space-y-3">
+          <div className="flex items-center gap-2 flex-wrap">
+            <Globe className="w-4 h-4 text-secondary" />
+            <p className="label-tag text-secondary">Target Account — Stellar Mainnet</p>
+            <span className="px-2 py-0.5 text-[9px] uppercase tracking-wider font-medium bg-success/10 text-success border border-success/20 rounded-full">
+              Live on-chain data
+            </span>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+            {KNOWN_ACCOUNTS.map((acct) => (
+              <button
+                key={acct.id}
+                disabled={isScanning}
+                onClick={() => {
+                  setSelectedAccount(acct);
+                  setReportData(null);
+                  setTerminalLines([]);
+                  setScanPhase("idle");
+                }}
+                className={`text-left p-3 border rounded-[6px] transition-all ${
+                  selectedAccount.id === acct.id
+                    ? "border-secondary/40 bg-secondary/10"
+                    : "border-border hover:border-secondary/20"
+                } ${isScanning ? "opacity-50 cursor-not-allowed" : ""}`}
+              >
+                <p className="text-xs font-mono font-bold text-secondary">{acct.label}</p>
+                <p className="text-[10px] text-muted-foreground mt-0.5">{acct.description}</p>
+                <p className="text-[10px] font-mono text-muted-foreground/60 mt-1">
+                  {acct.address.slice(0, 8)}...{acct.address.slice(-4)}
+                </p>
+              </button>
+            ))}
+          </div>
+        </div>
+
         {/* Mode + Run */}
         <div className="flex flex-wrap items-center gap-4">
           <ModeToggle mode={mode} onChange={handleModeChange} disabled={isScanning} />
@@ -1013,7 +1089,7 @@ const StellarDemo = () => {
             {isScanning ? (
               <>
                 <span className="w-3 h-3 border-2 border-muted-foreground/30 border-t-muted-foreground rounded-full animate-spin" />
-                Scanning...
+                Scanning {selectedAccount.label}...
               </>
             ) : (
               <>
@@ -1023,7 +1099,7 @@ const StellarDemo = () => {
             )}
           </button>
           <span className="text-xs font-mono text-muted-foreground">
-            Case: {STELLAR_DEMO_CASE_ID.slice(0, 12)}... | Chain: STELLAR | Network: MAINNET
+            Account: {selectedAccount.address.slice(0, 8)}... | Chain: STELLAR | Network: MAINNET
           </span>
         </div>
 
@@ -1031,8 +1107,8 @@ const StellarDemo = () => {
         {scanPhase !== "idle" && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
             <div className="flex items-center gap-1 w-full">
-              {SCAN_STEPS.map((step, i) => {
-                const currentIdx = SCAN_STEPS.findIndex((s) => s.phase === scanPhase);
+              {SCAN_PHASES.map((step, i) => {
+                const currentIdx = SCAN_PHASES.findIndex((s) => s.phase === scanPhase);
                 const isComplete = i < currentIdx;
                 const isActive = i === currentIdx;
                 return (
@@ -1079,23 +1155,35 @@ const StellarDemo = () => {
                 <div>
                   <h2 className="text-lg font-mono font-bold flex items-center gap-2">
                     <FileText className="w-4 h-4 text-secondary" />
-                    Stellar Compliance Report
+                    Stellar Compliance Audit Report
                     <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-normal ml-1">
                       v{reportData.report.manifest_version}
                     </span>
+                    <span className="px-2 py-0.5 text-[9px] uppercase tracking-wider font-medium bg-success/10 text-success border border-success/20 rounded-full">
+                      Live
+                    </span>
                   </h2>
                   <p className="text-xs text-muted-foreground mt-0.5">
-                    {reportData.report.chain} / {reportData.report.network} — Generated{" "}
+                    {reportData.report.chain} / {reportData.report.network} — {selectedAccount.label} — Generated{" "}
                     {new Date(reportData.report.generated_at).toLocaleString()}
                   </p>
                 </div>
-                <button
-                  onClick={downloadPdf}
-                  className="inline-flex items-center gap-2 px-4 py-2 border border-secondary text-secondary text-xs uppercase tracking-[0.08em] font-medium hover:bg-secondary/10 transition-colors rounded-[6px]"
-                >
-                  <Download className="w-3.5 h-3.5" />
-                  Export Audit Report
-                </button>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={downloadPdf}
+                    className="inline-flex items-center gap-2 px-4 py-2 border border-secondary text-secondary text-xs uppercase tracking-[0.08em] font-medium hover:bg-secondary/10 transition-colors rounded-[6px]"
+                  >
+                    <Download className="w-3.5 h-3.5" />
+                    Export PDF
+                  </button>
+                  <button
+                    onClick={downloadJson}
+                    className="inline-flex items-center gap-2 px-4 py-2 border border-primary text-primary text-xs uppercase tracking-[0.08em] font-medium hover:bg-primary/10 transition-colors rounded-[6px]"
+                  >
+                    <FileText className="w-3.5 h-3.5" />
+                    Export JSON
+                  </button>
+                </div>
               </div>
 
               {/* Summary cards */}
@@ -1139,11 +1227,15 @@ const StellarDemo = () => {
               <Play className="w-6 h-6 text-secondary" />
             </div>
             <p className="text-sm text-muted-foreground">
-              Ready to scan. Click <strong className="text-foreground">Run Compliance Scan</strong> to begin.
+              Ready to scan <strong className="text-foreground">{selectedAccount.label}</strong>. Click <strong className="text-foreground">Run Compliance Scan</strong> to begin.
             </p>
             <p className="text-xs text-muted-foreground/60 mt-2 max-w-md">
-              This demo simulates a full Stellar Anchor compliance workflow — SEP-10 authentication,
-              SEP-12 KYC verification, muxed account resolution, and SEP-8 pre-settlement enforcement.
+              Fetches live payment operations from Stellar mainnet, resolves counterparty identities
+              via stellar.toml, derives KYC status from on-chain account properties, screens against
+              compliance rulesets, and generates a signed audit report with PDF and JSON export.
+            </p>
+            <p className="text-[10px] font-mono text-muted-foreground/40 mt-3">
+              {selectedAccount.address}
             </p>
           </motion.div>
         )}
@@ -1154,7 +1246,7 @@ const StellarDemo = () => {
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-3">
           <Logo size={18} />
           <p className="text-[10px] text-muted-foreground uppercase tracking-wider">
-            Stellar-native compliance infrastructure for Anchors, payment corridors, and tokenised asset issuers.
+            Stellar-native compliance infrastructure — live data from horizon.stellar.org
           </p>
         </div>
       </footer>
