@@ -409,9 +409,12 @@ const Landing = () => {
             <a href="#reports" className="text-xs uppercase tracking-[0.08em] text-muted-foreground hover:text-foreground transition-colors hidden md:block">
               Reports
             </a>
-            <a href="#mica" className="text-xs uppercase tracking-[0.08em] text-muted-foreground hover:text-foreground transition-colors hidden md:block">
-              MiCA
-            </a>
+            <Link to="/security" className="text-xs uppercase tracking-[0.08em] text-muted-foreground hover:text-foreground transition-colors hidden md:block">
+              Security
+            </Link>
+            <Link to="/compliance" className="text-xs uppercase tracking-[0.08em] text-muted-foreground hover:text-foreground transition-colors hidden md:block">
+              Compliance
+            </Link>
             <a
               href="https://calendar.app.google/ew98PiFvT5MeBGiL8"
               target="_blank"
@@ -441,6 +444,19 @@ const Landing = () => {
               Chainalysis KYT intelligence to give institutions real-time compliance visibility, automated
               monitoring, and regulator-ready audit documentation.
             </p>
+
+            {/* Trust badges */}
+            <div className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-3">
+              <span className="inline-flex items-center gap-2 px-4 py-2 border border-primary/30 bg-primary/5 rounded-full text-xs font-medium text-primary">
+                <CheckCircle2 className="w-3.5 h-3.5" />
+                Selected for UNICEF Venture Fund
+              </span>
+              <span className="inline-flex items-center gap-2 px-4 py-2 border border-amber-400/30 bg-amber-400/5 rounded-full text-xs font-medium text-amber-400">
+                <Clock className="w-3.5 h-3.5" />
+                FCA Digital Sandbox — Application in Progress
+              </span>
+            </div>
+
             <div className="mt-10 flex flex-col sm:flex-row gap-3 justify-center">
               <a
                 href="https://calendar.app.google/ew98PiFvT5MeBGiL8"
@@ -958,7 +974,7 @@ const Landing = () => {
       {/* ================================================================ */}
       <footer className="border-t border-border py-16 px-6">
         <div className="max-w-6xl mx-auto">
-          <div className="grid md:grid-cols-4 gap-12 mb-12">
+          <div className="grid md:grid-cols-5 gap-12 mb-12">
             {/* Brand */}
             <div>
               <Logo />
@@ -991,6 +1007,22 @@ const Landing = () => {
               </ul>
             </div>
 
+            {/* Resources */}
+            <div>
+              <p className="label-tag mb-4">Resources</p>
+              <ul className="space-y-2">
+                <li>
+                  <Link to="/security" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Security</Link>
+                </li>
+                <li>
+                  <Link to="/compliance" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Compliance</Link>
+                </li>
+                <li>
+                  <Link to="/documentation" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Documentation</Link>
+                </li>
+              </ul>
+            </div>
+
             {/* Company */}
             <div>
               <p className="label-tag mb-4">Company</p>
@@ -1005,6 +1037,14 @@ const Landing = () => {
                   <a href="https://calendar.app.google/ew98PiFvT5MeBGiL8" target="_blank" rel="noopener noreferrer" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Book a Demo</a>
                 </li>
               </ul>
+              <div className="mt-4 pt-4 border-t border-border">
+                <p className="text-[11px] text-muted-foreground leading-relaxed font-medium">HERA PROTOCOL LIMITED</p>
+                <p className="text-[11px] text-muted-foreground leading-relaxed mt-1">
+                  167-169, Great Portland Street, 5th Floor,<br />
+                  London, England, W1W 5PF
+                </p>
+                <p className="text-[11px] text-muted-foreground mt-1">Company number: 17324991</p>
+              </div>
             </div>
           </div>
 
@@ -1014,7 +1054,7 @@ const Landing = () => {
               contact@heralayer.com
             </a>
             <p className="text-xs text-muted-foreground">
-              &copy; {new Date().getFullYear()} Hera Protocol. All rights reserved.
+              &copy; {new Date().getFullYear()} Hera Protocol Limited. All rights reserved.
             </p>
           </div>
         </div>
