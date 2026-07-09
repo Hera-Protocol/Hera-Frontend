@@ -25,17 +25,17 @@ export const KNOWN_ACCOUNTS: KnownAccount[] = [
     category: "issuer",
   },
   {
-    id: "sdf-ops",
-    label: "Stellar Development Foundation",
-    address: "GDKIJJIKXLOM2NRMPNQZUUYK24ZPVFC6426GZAEP3KUK6KEJLACCWNMX",
-    description: "SDF Product & Innovation wallet (~3.18B XLM)",
-    category: "foundation",
+    id: "circle-ops",
+    label: "Circle Operations",
+    address: "GAFK7XFZHMLSNV7OJTBO7BAIZA66X6QIBV5RMZZYXK4Q7ZSO52J5C3WQ",
+    description: "Circle's active USDC distribution and operations wallet",
+    category: "anchor",
   },
   {
-    id: "lobstr",
-    label: "LOBSTR Vault",
-    address: "GDCHDRSDOBRMSUDKRE2C4U4KDLNEATJPIHHR2ORFL5BSD56G4DQXL4VW",
-    description: "LOBSTR wallet/exchange operations account",
+    id: "stablecoin-hub",
+    label: "Stablecoin Settlement Hub",
+    address: "GDSQAEHJLE2ZZMQZ47YWLP3O2HVPYQ4QCFWTHUKMKF6RIX2ZJJDDMK4N",
+    description: "High-volume USDC + EURC settlement and liquidity account",
     category: "exchange",
   },
 ];
@@ -168,10 +168,26 @@ export async function fetchPayments(
   limit = 20,
   order: "asc" | "desc" = "desc",
 ): Promise<HorizonPayment[]> {
+  // Fetch more records than needed to filter out dust/spam transactions
+  // (many Stellar accounts receive 0.0000001 XLM spam payments)
+  const fetchLimit = Math.min(limit * 10, 200);
   const data = await horizonFetch<HorizonResponse<HorizonPayment>>(
-    `/accounts/${accountId}/payments?limit=${limit}&order=${order}`,
+    `/accounts/${accountId}/payments?limit=${fetchLimit}&order=${order}`,
   );
-  return data._embedded.records;
+  const records = data._embedded.records;
+
+  // Filter out dust spam (< 0.01 of any asset)
+  const meaningful = records.filter((r) => {
+    const amt = parseFloat(r.amount || r.starting_balance || "0");
+    return amt >= 0.01;
+  });
+
+  // If filtering removed too many, fall back to unfiltered
+  if (meaningful.length < 3 && records.length > 0) {
+    return records.slice(0, limit);
+  }
+
+  return meaningful.slice(0, limit);
 }
 
 export async function fetchOperations(
@@ -190,8 +206,10 @@ export async function fetchTransactions(
   limit = 20,
   order: "asc" | "desc" = "desc",
 ): Promise<HorizonTransaction[]> {
+  // Fetch more transactions to ensure we have tx data for all filtered payments
+  const fetchLimit = Math.min(limit * 5, 200);
   const data = await horizonFetch<HorizonResponse<HorizonTransaction>>(
-    `/accounts/${accountId}/transactions?limit=${limit}&order=${order}`,
+    `/accounts/${accountId}/transactions?limit=${fetchLimit}&order=${order}`,
   );
   return data._embedded.records;
 }
@@ -200,13 +218,55 @@ export async function fetchTransactions(
  * Fetch and parse a stellar.toml file from a domain.
  * The stellar.toml is a public file hosted at /.well-known/stellar.toml
  * per SEP-1. It contains SEP endpoint URLs, org info, and currency metadata.
+ *
+ * Many domains block cross-origin requests (CORS), so we try multiple
+ * approaches: direct fetch first, then known fallback data for major anchors.
  */
 export async function fetchStellarToml(domain: string): Promise<StellarTomlInfo> {
-  const url = `https://${domain}/.well-known/stellar.toml`;
-  const response = await fetch(url);
-  if (!response.ok) return {};
-  const text = await response.text();
-  return parseStellarToml(text);
+  // Known stellar.toml data for major anchors (avoids CORS issues)
+  const knownToml: Record<string, StellarTomlInfo> = {
+    "circle.com": {
+      org_name: "Circle Internet Financial",
+      org_url: "https://circle.com",
+      org_description: "Circle is a global financial technology firm",
+      web_auth_endpoint: "https://stellar-sep10.circle.com/auth",
+      transfer_server: "https://stellar-sep6.circle.com",
+      kyc_server: "https://stellar-sep12.circle.com",
+      signing_key: "GAYKJM2MJHKKNSXFBXNQGO2OELJ4VU7X4MC5ZHGA45YMGQBZSDNZ3G5L",
+      currencies: [
+        { code: "USDC", issuer: "GA5ZSEJYB37JRC5AVCIA5MOP4RHTM335X2KGX3IHOJAPP5RE34K4KZVN", status: "live" },
+        { code: "EURC", issuer: "GDHU6WRG4IEQXM5NZ4BMPKOXHW76MZM4Y36DAVIZA67LPRBBHKOBD4VE", status: "live" },
+      ],
+    },
+    "lobstr.co": {
+      org_name: "LOBSTR",
+      org_url: "https://lobstr.co",
+      org_description: "LOBSTR Stellar Wallet",
+      web_auth_endpoint: "https://lobstr.co/sep10/auth",
+      currencies: [],
+    },
+    "stellar.org": {
+      org_name: "Stellar Development Foundation",
+      org_url: "https://stellar.org",
+      org_description: "SDF — the non-profit supporting Stellar network development",
+      currencies: [],
+    },
+  };
+
+  // Check known data first
+  if (knownToml[domain]) return knownToml[domain];
+
+  // Try direct fetch (may fail due to CORS)
+  try {
+    const url = `https://${domain}/.well-known/stellar.toml`;
+    const response = await fetch(url);
+    if (!response.ok) return {};
+    const text = await response.text();
+    return parseStellarToml(text);
+  } catch {
+    // CORS or network error — return empty
+    return {};
+  }
 }
 
 function parseStellarToml(text: string): StellarTomlInfo {

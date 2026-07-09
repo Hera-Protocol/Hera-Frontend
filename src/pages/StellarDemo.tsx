@@ -672,7 +672,9 @@ function EventTimeline({ events }: { events: StellarDemoEvent[] }) {
                   </td>
                   <td className="px-4 py-3 font-mono text-xs">{event.asset.code}</td>
                   <td className={`px-4 py-3 font-mono text-xs text-right ${eventTypeColor[event.event_type]}`}>
-                    {parseFloat(event.amount).toLocaleString()}
+                    {parseFloat(event.amount) >= 1
+                      ? parseFloat(event.amount).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+                      : parseFloat(event.amount).toFixed(7)}
                   </td>
                   <td className="px-4 py-3 text-xs font-mono text-muted-foreground">
                     <span className={`inline-block w-1.5 h-1.5 rounded-full mr-1.5 ${
