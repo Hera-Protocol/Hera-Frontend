@@ -14,7 +14,7 @@ import Cases from "./pages/Cases.tsx";
 import Reports from "./pages/Reports.tsx";
 import Keys from "./pages/Keys.tsx";
 import DataInfusion from "./pages/DataInfusion.tsx";
-import Demo from "./pages/Demo.tsx";
+// import Demo from "./pages/Demo.tsx"; // Hidden — Zcash demo kept but not routed
 import StellarDemo from "./pages/StellarDemo.tsx";
 import Security from "./pages/Security.tsx";
 import Compliance from "./pages/Compliance.tsx";
@@ -52,7 +52,7 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/login" element={<Login />} />
             <Route path="/request-access" element={<RequestAccess />} />
-            <Route path="/demo" element={<Demo />} />
+            {/* <Route path="/demo" element={<Demo />} /> */}{/* Hidden — Zcash demo kept but not routed */}
             <Route path="/stellar/demo" element={<StellarDemo />} />
             <Route path="/security" element={<Security />} />
             <Route path="/compliance" element={<Compliance />} />

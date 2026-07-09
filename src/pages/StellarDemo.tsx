@@ -991,6 +991,7 @@ const StellarDemo = () => {
           </span>
         </div>
         <div className="flex items-center gap-3">
+          {/* Zcash Demo link hidden — kept for future use
           <Link
             to="/demo"
             className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
@@ -999,6 +1000,7 @@ const StellarDemo = () => {
             Zcash Demo
           </Link>
           <span className="text-muted-foreground/30">|</span>
+          */}
           <Link
             to="/"
             className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"

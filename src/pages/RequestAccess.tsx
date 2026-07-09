@@ -84,7 +84,7 @@ const RequestAccess = () => {
             </h1>
             <p className="text-muted-foreground leading-relaxed mb-8 text-sm md:text-base">
               Hera is currently onboarding a small group of compliance teams, auditors, and
-              regulated entities working with Zcash and Namada. Tell us a bit about your
+              regulated entities working across supported networks. Tell us a bit about your
               workspace and we'll respond within two business days.
             </p>
 

@@ -1,5 +1,5 @@
 import { HexBackground } from "@/components/HexBackground";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   ArrowRight,
   Search,
@@ -17,9 +17,12 @@ import {
   Bell,
   CheckCircle2,
   Mail,
+  Menu,
+  X,
 } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { Link } from "react-router-dom";
+import { useState } from "react";
 
 // ---------------------------------------------------------------------------
 // Section 3 — Problem
@@ -388,6 +391,8 @@ const networks = ["Stellar", "Ethereum", "BNB Chain", "Polygon", "Arbitrum", "Ba
 // ---------------------------------------------------------------------------
 
 const Landing = () => {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
   return (
     <div className="min-h-screen bg-background text-foreground overflow-hidden">
       {/* ================================================================ */}
@@ -419,12 +424,60 @@ const Landing = () => {
               href="https://calendar.app.google/ew98PiFvT5MeBGiL8"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center px-4 py-2 bg-primary text-primary-foreground text-xs uppercase tracking-[0.1em] font-semibold rounded-[6px] hover:bg-primary/90 transition-colors"
+              className="inline-flex items-center px-4 py-2 bg-primary text-primary-foreground text-xs uppercase tracking-[0.1em] font-semibold rounded-[6px] hover:bg-primary/90 transition-colors hidden sm:inline-flex"
             >
               Book a Demo
             </a>
+            {/* Mobile menu toggle */}
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="md:hidden p-2 text-muted-foreground hover:text-foreground transition-colors"
+              aria-label="Toggle menu"
+            >
+              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            </button>
           </div>
         </nav>
+
+        {/* Mobile menu */}
+        <AnimatePresence>
+          {mobileMenuOpen && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.2 }}
+              className="relative z-10 md:hidden border-b border-border bg-background/95 backdrop-blur-sm overflow-hidden"
+            >
+              <div className="flex flex-col px-6 py-4 gap-4">
+                <a href="#platform" onClick={() => setMobileMenuOpen(false)} className="text-sm uppercase tracking-[0.08em] text-muted-foreground hover:text-foreground transition-colors">
+                  Platform
+                </a>
+                <a href="#use-cases" onClick={() => setMobileMenuOpen(false)} className="text-sm uppercase tracking-[0.08em] text-muted-foreground hover:text-foreground transition-colors">
+                  Use Cases
+                </a>
+                <a href="#reports" onClick={() => setMobileMenuOpen(false)} className="text-sm uppercase tracking-[0.08em] text-muted-foreground hover:text-foreground transition-colors">
+                  Reports
+                </a>
+                <Link to="/security" onClick={() => setMobileMenuOpen(false)} className="text-sm uppercase tracking-[0.08em] text-muted-foreground hover:text-foreground transition-colors">
+                  Security
+                </Link>
+                <Link to="/compliance" onClick={() => setMobileMenuOpen(false)} className="text-sm uppercase tracking-[0.08em] text-muted-foreground hover:text-foreground transition-colors">
+                  Compliance
+                </Link>
+                <a
+                  href="https://calendar.app.google/ew98PiFvT5MeBGiL8"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="inline-flex items-center justify-center px-4 py-2.5 bg-primary text-primary-foreground text-sm uppercase tracking-[0.1em] font-semibold rounded-[6px] hover:bg-primary/90 transition-colors"
+                >
+                  Book a Demo
+                </a>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Hero content */}
         <div className="relative z-10 flex-1 flex flex-col items-center justify-center px-6 text-center">
