@@ -37,6 +37,8 @@ import {
   type AccountForm,
 } from "@/data/stellar-demo-data";
 import { generateStellarPdf } from "@/lib/stellar-pdf";
+import { generateCaspSummaryPdf } from "@/lib/casp-summary-pdf";
+import { generateTfrReportPdf } from "@/lib/tfr-report-pdf";
 import { KNOWN_ACCOUNTS, type KnownAccount } from "@/lib/stellar-horizon";
 import { fetchAndTransform } from "@/lib/stellar-transform";
 
@@ -966,6 +968,18 @@ const StellarDemo = () => {
     toast("Stellar compliance audit report (PDF) downloaded");
   };
 
+  const downloadCaspSummary = () => {
+    if (!reportData) return;
+    generateCaspSummaryPdf(reportData);
+    toast("CASP Compliance-Status Summary (PDF) downloaded");
+  };
+
+  const downloadTfrReport = () => {
+    if (!reportData) return;
+    generateTfrReportPdf(reportData);
+    toast("TFR Transaction Compliance Report (PDF) downloaded");
+  };
+
   const downloadJson = () => {
     if (!reportData) return;
     const blob = new Blob([JSON.stringify(reportData, null, 2)], { type: "application/json" });
@@ -1172,13 +1186,27 @@ const StellarDemo = () => {
                     {new Date(reportData.report.generated_at).toLocaleString()}
                   </p>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <button
+                    onClick={downloadCaspSummary}
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground text-xs uppercase tracking-[0.08em] font-medium hover:bg-primary/90 transition-colors rounded-[6px]"
+                  >
+                    <Download className="w-3.5 h-3.5" />
+                    CASP Summary
+                  </button>
+                  <button
+                    onClick={downloadTfrReport}
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground text-xs uppercase tracking-[0.08em] font-medium hover:bg-primary/90 transition-colors rounded-[6px]"
+                  >
+                    <Download className="w-3.5 h-3.5" />
+                    TFR Report
+                  </button>
                   <button
                     onClick={downloadPdf}
                     className="inline-flex items-center gap-2 px-4 py-2 border border-primary text-primary text-xs uppercase tracking-[0.08em] font-medium hover:bg-primary/10 transition-colors rounded-[6px]"
                   >
                     <Download className="w-3.5 h-3.5" />
-                    Export PDF
+                    Audit PDF
                   </button>
                   <button
                     onClick={downloadJson}
