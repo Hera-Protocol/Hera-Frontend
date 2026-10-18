@@ -1,0 +1,216 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+/* ─── Tokens ─────────────────────────────────────────────
+   Paper and ink. Every surface gets a 2px ink outline and a hard
+   offset shadow; colors carry meaning (risk bands) or brand, never
+   decoration for its own sake. */
+:root {
+  --paper: #fff5e8;
+  --paper-2: #fbe7cf;
+  --card: #ffffff;
+  --ink: #17130f;
+  --ink-soft: #5b5047;
+  --line: #17130f;
+  --shadow-color: #17130f;
+
+  --sun: #ffc93c;
+  --peacock: #0f9d8a;
+  --peacock-soft: #d4f2ec;
+  --iris: #4b5bff;
+  --iris-soft: #e3e6ff;
+  --blush: #ff8fb8;
+  --blush-soft: #ffe3ee;
+  --tangerine: #ff9f1c;
+
+  --risk-low: #137a4a;
+  --risk-low-soft: #d9f3e6;
+  --risk-medium: #9a5c00;
+  --risk-medium-soft: #fff0cc;
+  --risk-high: #c2410c;
+  --risk-high-soft: #ffe1d4;
+  --risk-severe: #b91c1c;
+  --risk-severe-soft: #ffdcd8;
+
+  color-scheme: light;
+}
+
+[data-theme="dark"] {
+  --paper: #15110d;
+  --paper-2: #1e1812;
+  --card: #231c15;
+  --ink: #fff5e8;
+  --ink-soft: #c8b8a4;
+  --line: #e9dac6;
+  --shadow-color: #000000;
+
+  --peacock: #2cc7b1;
+  --peacock-soft: #12352f;
+  --iris: #8b97ff;
+  --iris-soft: #23264d;
+  --blush-soft: #3d1f2b;
+
+  --risk-low: #3fcf8a;
+  --risk-low-soft: #12301f;
+  --risk-medium: #ffbd3d;
+  --risk-medium-soft: #3a2c0c;
+  --risk-high: #ff7e4d;
+  --risk-high-soft: #3d1d10;
+  --risk-severe: #ff5a4f;
+  --risk-severe-soft: #3f1512;
+
+  color-scheme: dark;
+}
+
+@theme inline {
+  --color-paper: var(--paper);
+  --color-paper-2: var(--paper-2);
+  --color-card: var(--card);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-line: var(--line);
+  --color-sun: var(--sun);
+  --color-peacock: var(--peacock);
+  --color-peacock-soft: var(--peacock-soft);
+  --color-iris: var(--iris);
+  --color-iris-soft: var(--iris-soft);
+  --color-blush: var(--blush);
+  --color-blush-soft: var(--blush-soft);
+  --color-tangerine: var(--tangerine);
+  --color-risk-low: var(--risk-low);
+  --color-risk-low-soft: var(--risk-low-soft);
+  --color-risk-medium: var(--risk-medium);
+  --color-risk-medium-soft: var(--risk-medium-soft);
+  --color-risk-high: var(--risk-high);
+  --color-risk-high-soft: var(--risk-high-soft);
+  --color-risk-severe: var(--risk-severe);
+  --color-risk-severe-soft: var(--risk-severe-soft);
+
+  --font-display: var(--font-bricolage), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-dm-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-dm-mono), ui-monospace, "SF Mono", Menlo, monospace;
+
+  --shadow-hard-sm: 2px 2px 0 var(--shadow-color);
+  --shadow-hard: 4px 4px 0 var(--shadow-color);
+  --shadow-hard-lg: 7px 7px 0 var(--shadow-color);
+
+  --radius-card: 16px;
+  --radius-control: 11px;
+
+  --animate-marquee: marquee 38s linear infinite;
+  --animate-float: float 6s ease-in-out infinite;
+  --animate-wiggle: wiggle 0.6s ease-in-out;
+  --animate-blink-dot: blink-dot 1.6s ease-in-out infinite;
+
+  @keyframes marquee {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+  @keyframes float {
+    0%, 100% { transform: translateY(0) rotate(-1deg); }
+    50% { transform: translateY(-8px) rotate(1deg); }
+  }
+  @keyframes wiggle {
+    0%, 100% { transform: rotate(0); }
+    25% { transform: rotate(-4deg); }
+    75% { transform: rotate(4deg); }
+  }
+  @keyframes blink-dot {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.35; transform: scale(0.8); }
+  }
+}
+
+/* ─── Base ───────────────────────────────────────────── */
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  h1, h2, h3, h4 {
+    font-family: var(--font-display);
+    letter-spacing: -0.02em;
+    text-wrap: balance;
+  }
+  p {
+    text-wrap: pretty;
+  }
+  ::selection {
+    background: var(--sun);
+    color: #17130f;
+  }
+  :focus-visible {
+    outline: 3px solid var(--iris);
+    outline-offset: 2px;
+    border-radius: 6px;
+  }
+  button:not(:disabled), [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+}
+
+/* ─── Signature pieces ───────────────────────────────── */
+
+@layer components {
+  /* The base surface: outline + hard shadow. */
+  .brutal {
+    background: var(--card);
+    border: 2px solid var(--line);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-hard);
+  }
+
+  /* Physical press: lifts on hover, collapses its shadow when pressed. */
+  .press {
+    transition: transform 120ms cubic-bezier(0.2, 0, 0, 1), box-shadow 120ms cubic-bezier(0.2, 0, 0, 1);
+  }
+  .press:hover:not(:disabled) {
+    transform: translate(-1px, -1px);
+    box-shadow: 5px 5px 0 var(--shadow-color);
+  }
+  .press:active:not(:disabled) {
+    transform: translate(4px, 4px);
+    box-shadow: 0 0 0 var(--shadow-color);
+  }
+
+  .dot-grid {
+    background-image: radial-gradient(color-mix(in srgb, var(--ink) 13%, transparent) 1.2px, transparent 1.2px);
+    background-size: 22px 22px;
+  }
+
+  .highlight {
+    background: linear-gradient(transparent 58%, var(--sun) 58%, var(--sun) 92%, transparent 92%);
+    padding: 0 0.08em;
+  }
+
+  .eyebrow {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+  }
+
+  .scrollbar-none {
+    scrollbar-width: none;
+  }
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

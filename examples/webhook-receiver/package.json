@@ -1,0 +1,22 @@
+{
+  "name": "@hera/example-webhook-receiver",
+  "version": "0.0.0",
+  "private": true,
+  "description": "A framework-free Node http webhook receiver that verifies Hera signatures on the raw body.",
+  "type": "module",
+  "scripts": {
+    "start": "tsx src/server.ts",
+    "send-test-event": "tsx src/send-test-event.ts",
+    "demo": "tsx src/demo.ts",
+    "typecheck": "tsc --noEmit -p tsconfig.json"
+  },
+  "dependencies": {
+    "@hera/sdk": "workspace:*"
+  },
+  "devDependencies": {
+    "@hera/core": "workspace:*",
+    "@types/node": "24.19.2",
+    "tsx": "4.23.15",
+    "typescript": "5.9.3"
+  }
+}

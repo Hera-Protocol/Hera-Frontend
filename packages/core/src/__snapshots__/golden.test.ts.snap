@@ -1,0 +1,378 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`golden: Circle USDC issuer (Stellar) > is a known issuer, not a shared customer account 1`] = `
+{
+  "band": "low",
+  "counterparties": 11,
+  "decision": "allow",
+  "engineVersion": "2026.10.2",
+  "newestTransfers": [
+    "279192227362951169",
+    "279098472521916417",
+    "279095749512372225",
+  ],
+  "profile": {
+    "createdAt": undefined,
+    "dataStatus": "complete",
+    "delegatedTo": undefined,
+    "exists": true,
+    "fullHistory": false,
+    "isContract": undefined,
+    "observedTransfers": 546,
+    "sharedAccountRatio": 0.125,
+    "window": {
+      "claimsResolved": 0,
+      "claimsSkipped": 0,
+      "oldest": "2026-09-22T14:31:13Z",
+      "pages": {
+        "effects": 1,
+        "payments": 3,
+      },
+      "records": 800,
+      "truncatedBy": "page_budget",
+    },
+  },
+  "reasons": [
+    "KNOWN_ENTITY +0 info: Attributed by Circle developer docs: USDC issuer addresses with 100% confidence.",
+  ],
+  "score": 2,
+  "stats": {
+    "dustFiltered": 54,
+    "failed": 0,
+    "firstSeen": "2026-09-22T14:31:13Z",
+    "inbound": 546,
+    "lastSeen": "2026-10-18T07:25:12Z",
+    "outbound": 0,
+    "transfers": 546,
+  },
+}
+`;
+
+exports[`golden: Kraken omnibus (Stellar, muxed and memo routing) > narrows to one memo customer, inbound only 1`] = `
+{
+  "band": "low",
+  "counterparties": 4,
+  "decision": "allow",
+  "engineVersion": "2026.10.2",
+  "newestTransfers": [
+    "279220273499561985",
+    "279219311426744321",
+    "279219075203698689",
+  ],
+  "profile": {
+    "createdAt": undefined,
+    "dataStatus": "complete",
+    "delegatedTo": undefined,
+    "exists": true,
+    "fullHistory": false,
+    "isContract": undefined,
+    "observedTransfers": 596,
+    "sharedAccountRatio": 0.9508506616257089,
+    "window": {
+      "claimsResolved": 0,
+      "claimsSkipped": 0,
+      "oldest": "2026-10-15T19:59:47Z",
+      "pages": {
+        "effects": 1,
+        "payments": 3,
+      },
+      "records": 800,
+      "truncatedBy": "page_budget",
+    },
+  },
+  "reasons": [
+    "SUBACCOUNT_RESOLVED +0 info: Scored memo id "1763579285836133015" under GA5X…GKTM: 70 of 596 recent transfers belong to this customer.",
+  ],
+  "score": 5,
+  "stats": {
+    "dustFiltered": 4,
+    "failed": 0,
+    "firstSeen": "2026-10-15T20:10:57Z",
+    "inbound": 70,
+    "lastSeen": "2026-10-18T16:29:22Z",
+    "outbound": 0,
+    "transfers": 70,
+  },
+}
+`;
+
+exports[`golden: Kraken omnibus (Stellar, muxed and memo routing) > narrows to one muxed customer 1`] = `
+{
+  "band": "low",
+  "counterparties": 2,
+  "decision": "allow",
+  "engineVersion": "2026.10.2",
+  "newestTransfers": [
+    "279180854289338369",
+    "279180545051951105",
+    "279180137029853185",
+  ],
+  "profile": {
+    "createdAt": undefined,
+    "dataStatus": "complete",
+    "delegatedTo": undefined,
+    "exists": true,
+    "fullHistory": false,
+    "isContract": undefined,
+    "observedTransfers": 596,
+    "sharedAccountRatio": 0.9508506616257089,
+    "window": {
+      "claimsResolved": 0,
+      "claimsSkipped": 0,
+      "oldest": "2026-10-15T19:59:47Z",
+      "pages": {
+        "effects": 1,
+        "payments": 3,
+      },
+      "records": 800,
+      "truncatedBy": "page_budget",
+    },
+  },
+  "reasons": [
+    "SUBACCOUNT_RESOLVED +0 info: Scored muxed ID 1790254030022811771 under GA5X…GKTM: 26 of 596 recent transfers belong to this customer.",
+  ],
+  "score": 5,
+  "stats": {
+    "dustFiltered": 4,
+    "failed": 0,
+    "firstSeen": "2026-10-16T17:19:52Z",
+    "inbound": 26,
+    "lastSeen": "2026-10-18T03:44:32Z",
+    "outbound": 0,
+    "transfers": 26,
+  },
+}
+`;
+
+exports[`golden: Kraken omnibus (Stellar, muxed and memo routing) > warns at the base account and does not call deposit traffic a pass-through 1`] = `
+{
+  "band": "low",
+  "counterparties": 25,
+  "decision": "allow",
+  "engineVersion": "2026.10.2",
+  "newestTransfers": [
+    "279222627141472257",
+    "279222489702498305",
+    "279222408098025473",
+  ],
+  "profile": {
+    "createdAt": undefined,
+    "dataStatus": "complete",
+    "delegatedTo": undefined,
+    "exists": true,
+    "fullHistory": false,
+    "isContract": undefined,
+    "observedTransfers": 596,
+    "sharedAccountRatio": 0.9508506616257089,
+    "window": {
+      "claimsResolved": 0,
+      "claimsSkipped": 0,
+      "oldest": "2026-10-15T19:59:47Z",
+      "pages": {
+        "effects": 1,
+        "payments": 3,
+      },
+      "records": 800,
+      "truncatedBy": "page_budget",
+    },
+  },
+  "reasons": [
+    "HIGH_VELOCITY +10 low: 188 transfers in the last 24 hours.",
+    "SHARED_ACCOUNT_NO_SUBACCOUNT +5 low: 503 of 529 inbound payments (95%) carry a muxed ID or memo ID, across 220 distinct customers, so this address likely serves many customers. Screen the M… address or memo to identify the actual counterparty.",
+  ],
+  "score": 20,
+  "stats": {
+    "dustFiltered": 4,
+    "failed": 0,
+    "firstSeen": "2026-10-15T19:59:47Z",
+    "inbound": 530,
+    "lastSeen": "2026-10-18T17:15:02Z",
+    "outbound": 66,
+    "transfers": 596,
+  },
+}
+`;
+
+exports[`golden: OFAC-listed Lazarus address > is blocked at 100 1`] = `
+{
+  "band": "severe",
+  "counterparties": 25,
+  "decision": "block",
+  "engineVersion": "2026.10.2",
+  "newestTransfers": [
+    "0xfd721b32c54e0ebc441f87112f519ca57b204b5c916d96c717cb01bc82a335ef:log:18831",
+    "0xbf3303f44341f139ac72182801588631d497bbadd3fdb999049b54b96b197205:log:722",
+    "0xc9617ba91041a5730856dab8464328d7d6b7f12f060927cf3e6aa74759018f2b:tx",
+  ],
+  "profile": {
+    "createdAt": undefined,
+    "dataStatus": "complete",
+    "delegatedTo": undefined,
+    "exists": true,
+    "fullHistory": false,
+    "isContract": false,
+    "observedTransfers": 144,
+    "sharedAccountRatio": undefined,
+    "window": {
+      "oldest": "2022-03-23T13:29:09.000000Z",
+      "pages": {
+        "internal": 1,
+        "tokens": 2,
+        "transactions": 2,
+      },
+      "records": 201,
+      "truncatedBy": "page_budget",
+    },
+  },
+  "reasons": [
+    "SANCTIONS_DIRECT +100 critical: Lazarus Group (Ronin Bridge exploiter), listed on OFAC SDN list. Transactions with this address are prohibited.",
+  ],
+  "score": 100,
+  "stats": {
+    "dustFiltered": 2,
+    "failed": 0,
+    "firstSeen": "2022-03-23T13:29:09.000000Z",
+    "inbound": 123,
+    "lastSeen": "2026-10-08T21:22:35.000000Z",
+    "outbound": 21,
+    "transfers": 144,
+  },
+}
+`;
+
+exports[`golden: address with failed transactions > keeps failed transfers for display but never scores them 1`] = `
+{
+  "band": "low",
+  "counterparties": 3,
+  "decision": "allow",
+  "engineVersion": "2026.10.2",
+  "newestTransfers": [
+    "0xf82cc23a82ac3c6e100c99754496e5adebf11626c277c170bf1dfaa2000fa0d4:tx",
+    "0xd8d22c94215683b4af696d1a0ed72f95d0ed4ba734bbf410683f45c18a4648a3:tx",
+    "0x9a6f88d44cc28b98985d22f18860058a204436f3db98e352b870be08ed45c7f7:tx",
+  ],
+  "profile": {
+    "createdAt": undefined,
+    "dataStatus": "complete",
+    "delegatedTo": undefined,
+    "exists": true,
+    "fullHistory": false,
+    "isContract": false,
+    "observedTransfers": 104,
+    "sharedAccountRatio": undefined,
+    "window": {
+      "oldest": "2026-10-16T22:20:59.000000Z",
+      "pages": {
+        "internal": 1,
+        "tokens": 1,
+        "transactions": 2,
+      },
+      "records": 104,
+      "truncatedBy": "page_budget",
+    },
+  },
+  "reasons": [],
+  "score": 5,
+  "stats": {
+    "dustFiltered": 0,
+    "failed": 100,
+    "firstSeen": "2026-10-16T22:20:59.000000Z",
+    "inbound": 4,
+    "lastSeen": "2026-10-18T17:17:11.000000Z",
+    "outbound": 100,
+    "transfers": 104,
+  },
+}
+`;
+
+exports[`golden: claimable-balance claimant (Stellar) > turns claims into transfers from the creator 1`] = `
+{
+  "band": "low",
+  "counterparties": 11,
+  "decision": "allow",
+  "engineVersion": "2026.10.2",
+  "newestTransfers": [
+    "279222317903933441",
+    "279222025845882882:claim",
+    "279221768148115458:claim",
+  ],
+  "profile": {
+    "createdAt": "2026-05-15T22:14:29Z",
+    "dataStatus": "complete",
+    "delegatedTo": undefined,
+    "exists": true,
+    "fullHistory": false,
+    "isContract": undefined,
+    "observedTransfers": 81,
+    "sharedAccountRatio": 0,
+    "window": {
+      "claimsResolved": 10,
+      "claimsSkipped": 2,
+      "oldest": "2026-05-15T22:14:29Z",
+      "pages": {
+        "effects": 1,
+        "payments": 1,
+      },
+      "records": 279,
+    },
+  },
+  "reasons": [],
+  "score": 5,
+  "stats": {
+    "dustFiltered": 8,
+    "failed": 0,
+    "firstSeen": "2026-05-15T22:14:29Z",
+    "inbound": 80,
+    "lastSeen": "2026-10-18T17:09:02Z",
+    "outbound": 1,
+    "transfers": 81,
+  },
+}
+`;
+
+exports[`golden: vitalik.eth (EIP-7702 delegated EOA) > is a wallet with a delegate, not a smart contract 1`] = `
+{
+  "band": "low",
+  "counterparties": 25,
+  "decision": "allow",
+  "engineVersion": "2026.10.2",
+  "newestTransfers": [
+    "0xec947be79c0e7f3caacef3a30345b11822cff73f3bf96d8a84e36904ea49a7ca:log:433",
+    "0x01d2e40e3320153522a46f6af5505b7e1b33873ced6006ff7d8fd4740ff327bc:tx",
+    "0x74fc4d323ad7b189311571afe9d85004735800965a3f3d798f099872a58c8d8c:tx",
+  ],
+  "profile": {
+    "createdAt": undefined,
+    "dataStatus": "complete",
+    "delegatedTo": "0x5A7FC11397E9a8AD41BF10bf13F22B0a63f96f6d",
+    "exists": true,
+    "fullHistory": false,
+    "isContract": false,
+    "observedTransfers": 183,
+    "sharedAccountRatio": undefined,
+    "window": {
+      "oldest": "2026-07-19T11:17:47.000000Z",
+      "pages": {
+        "internal": 1,
+        "tokens": 2,
+        "transactions": 2,
+      },
+      "records": 250,
+      "truncatedBy": "error",
+    },
+  },
+  "reasons": [
+    "EIP7702_DELEGATED +0 info: A key-controlled wallet that delegates its code to 0x5A7F…6f6d. Treated as a wallet, not a contract.",
+  ],
+  "score": 5,
+  "stats": {
+    "dustFiltered": 0,
+    "failed": 1,
+    "firstSeen": "2026-07-19T11:41:23.000000Z",
+    "inbound": 176,
+    "lastSeen": "2026-10-18T14:45:35.000000Z",
+    "outbound": 7,
+    "transfers": 183,
+  },
+}
+`;

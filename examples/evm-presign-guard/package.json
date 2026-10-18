@@ -1,0 +1,21 @@
+{
+  "name": "@hera/example-evm-presign-guard",
+  "version": "0.0.0",
+  "private": true,
+  "description": "A viem guardedSendTransaction() that decodes ERC-20 calldata and screens the real recipient before sending.",
+  "type": "module",
+  "scripts": {
+    "start": "tsx src/main.ts",
+    "dry-run": "DRY_RUN=1 tsx src/main.ts",
+    "typecheck": "tsc --noEmit -p tsconfig.json"
+  },
+  "dependencies": {
+    "@hera/sdk": "workspace:*",
+    "viem": "2.57.3"
+  },
+  "devDependencies": {
+    "@types/node": "24.19.2",
+    "tsx": "4.23.15",
+    "typescript": "5.9.3"
+  }
+}

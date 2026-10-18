@@ -1,0 +1,19 @@
+{
+  "name": "@hera/example-nextjs-proxy",
+  "version": "0.0.0",
+  "private": true,
+  "description": "A Next.js App Router route handler that keeps the Hera key server-side and exposes a narrow screening endpoint.",
+  "type": "module",
+  "scripts": {
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "smoke": "tsx smoke.ts"
+  },
+  "dependencies": {
+    "@hera/sdk": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "24.19.2",
+    "tsx": "4.23.15",
+    "typescript": "5.9.3"
+  }
+}

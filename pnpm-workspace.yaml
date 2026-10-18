@@ -1,0 +1,15 @@
+packages:
+  - "apps/*"
+  - "packages/*"
+  - "examples/*"
+
+onlyBuiltDependencies:
+  - "@embedded-postgres/darwin-arm64"
+  - "@embedded-postgres/darwin-x64"
+  - "@embedded-postgres/linux-x64"
+  - "@nestjs/core"
+  - "@swc/core"
+  - argon2
+  - esbuild
+  - sharp
+  - unrs-resolver
