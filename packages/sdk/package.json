@@ -19,13 +19,16 @@
       }
     }
   },
-  "files": ["dist", "README.md"],
+  "files": [
+    "dist",
+    "README.md"
+  ],
   "sideEffects": false,
   "engines": {
     "node": ">=18"
   },
   "scripts": {
-    "build": "tsup",
+    "build": "pnpm --filter @hera/core build && tsup",
     "dev": "tsup --watch",
     "test": "vitest run",
     "test:e2e": "vitest run --config vitest.e2e.config.ts",
