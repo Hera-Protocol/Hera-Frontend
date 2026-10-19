@@ -1,6 +1,10 @@
 import type { NextConfig } from "next";
 
-const apiUrl = process.env.HERA_API_URL ?? "http://localhost:4000";
+// Rewrites are fixed at build time. On Vercel a missing HERA_API_URL used to
+// fall back to localhost, which Vercel refuses to proxy (DNS_HOSTNAME_RESOLVED_PRIVATE).
+const PRODUCTION_API = "https://server.heralayer.com";
+const apiUrl = (process.env.HERA_API_URL?.trim() || (process.env.VERCEL ? PRODUCTION_API : "http://localhost:4000")).replace(/\/+$/, "");
+console.log(`[hera] proxying /api/* to ${apiUrl}`);
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
