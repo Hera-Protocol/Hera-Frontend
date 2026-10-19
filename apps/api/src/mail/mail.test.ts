@@ -5,7 +5,7 @@ import type { AlertDto } from "@hera/core";
 import { afterAll, describe, expect, it } from "vitest";
 import { loadConfig } from "../config/config";
 import { createMailTransport } from "./mail.module";
-import { LogMailTransport, SmtpMailTransport } from "./mail-transport";
+import { LogMailTransport, ResendMailTransport, SmtpMailTransport } from "./mail-transport";
 import { alertNotification, escapeHtml, passwordReset, reportReady, teamInvite, verifyEmail } from "./templates";
 
 const dir = mkdtempSync(path.join(os.tmpdir(), "hera-mail-test-"));
@@ -59,5 +59,49 @@ describe("templates", () => {
     expect(all[3]!.html).toContain("Sanctioned &lt;address&gt;");
     expect(all[3]!.subject).toBe("[CRITICAL] Sanctioned <address>: 0xabc");
     expect(escapeHtml(`"'`)).toBe("&quot;&#39;");
+  });
+});
+
+describe("ResendMailTransport", () => {
+  it("posts the message to Resend with the key as a bearer token", async () => {
+    const calls: { url: string; init: RequestInit }[] = [];
+    const fake = (async (url: string, init: RequestInit) => {
+      calls.push({ url, init });
+      return new Response(JSON.stringify({ id: "re_123" }), { status: 200 });
+    }) as unknown as typeof fetch;
+    const transport = new ResendMailTransport("re_test_key", fake);
+    await transport.send({ to: "ada@example.com", subject: "Hi", html: "<p>Hi</p>", text: "Hi", tag: "verify-email" }, "Hera <no-reply@heralayer.com>");
+    expect(calls[0]!.url).toBe("https://api.resend.com/emails");
+    expect((calls[0]!.init.headers as Record<string, string>).Authorization).toBe("Bearer re_test_key");
+    const body = JSON.parse(String(calls[0]!.init.body));
+    expect(body).toMatchObject({ from: "Hera <no-reply@heralayer.com>", to: ["ada@example.com"], subject: "Hi", text: "Hi" });
+  });
+
+  it("throws with Resend's error message, without the key", async () => {
+    const fake = (async () => new Response(JSON.stringify({ name: "validation_error", message: "Domain not verified" }), { status: 403 })) as unknown as typeof fetch;
+    const transport = new ResendMailTransport("re_secret_key", fake);
+    const error = await transport.send({ to: "a@b.co", subject: "s", html: "h", text: "t", tag: "x" }, "f@heralayer.com").catch((e: Error) => e);
+    expect(String(error)).toMatch(/403.*Domain not verified/);
+    expect(String(error)).not.toContain("re_secret_key");
+  });
+
+  it("is chosen by MAIL_DRIVER=resend and requires a key", () => {
+    expect(createMailTransport(loadConfig({ MAIL_DRIVER: "resend", RESEND_API_KEY: "re_x" })).name).toBe("resend");
+    expect(() => createMailTransport(loadConfig({ MAIL_DRIVER: "resend" }))).toThrow(/RESEND_API_KEY/);
+  });
+});
+
+describe("chain endpoint config", () => {
+  it("defaults to two Horizon instances and the free Blockscout instance", () => {
+    const config = loadConfig({});
+    expect(config.horizonUrls).toEqual(["https://horizon.stellar.org", "https://horizon.stellar.lobstr.co"]);
+    expect(config.blockscoutUrls["evm:1"]).toEqual(["https://eth.blockscout.com/api/v2"]);
+  });
+
+  it("reads HORIZON_URLS and appends the keyed Blockscout PRO API", () => {
+    const config = loadConfig({ HORIZON_URLS: "https://h1.example/, https://h2.example", BLOCKSCOUT_API_KEY: "proj_abc" });
+    expect(config.horizonUrls).toEqual(["https://h1.example", "https://h2.example"]);
+    expect(config.horizonUrl).toBe("https://h1.example");
+    expect(config.blockscoutUrls["evm:1"]).toEqual(["https://eth.blockscout.com/api/v2", "https://api.blockscout.com/1/api/v2?apikey=proj_abc"]);
   });
 });

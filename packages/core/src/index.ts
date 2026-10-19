@@ -19,3 +19,4 @@ export { base64ToHex, memoBytesHex, memoMatches, normalizeMemo } from "./stellar
 export { looksLikeOmnibus, OMNIBUS_RULE, routingKey, sharedAccountEvidence, type SharedAccountEvidence } from "./stellar/omnibus";
 export { HORIZON_DEFAULTS, normalizeClaim } from "./adapters/horizon";
 export { BLOCKSCOUT_DEFAULTS, eip7702Delegate, normalizeBlockscout } from "./adapters/blockscout";
+export { createFailoverFetch, type FailoverOptions } from "./adapters/failover";

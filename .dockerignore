@@ -1,0 +1,11 @@
+**/node_modules
+**/.next
+**/.turbo
+**/.data
+**/dist
+**/*.tsbuildinfo
+.git
+.env
+**/.env
+!**/.env.example
+deploy/.env

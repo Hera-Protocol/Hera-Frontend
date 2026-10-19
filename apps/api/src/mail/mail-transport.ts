@@ -52,3 +52,34 @@ export class SmtpMailTransport implements MailTransport {
     await this.transporter.sendMail({ from, to: message.to, subject: message.subject, html: message.html, text: message.text });
   }
 }
+
+/** Production driver: Resend's HTTP API (RESEND_API_KEY). MAIL_FROM must be on a domain verified in Resend. */
+export class ResendMailTransport implements MailTransport {
+  readonly name = "resend";
+
+  constructor(
+    private readonly apiKey: string,
+    private readonly fetchImpl: typeof fetch = (input, init) => globalThis.fetch(input, init),
+  ) {}
+
+  async send(message: MailMessage, from: string): Promise<void> {
+    const response = await this.fetchImpl("https://api.resend.com/emails", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${this.apiKey}`, "Content-Type": "application/json" },
+      body: JSON.stringify({
+        from,
+        to: [message.to],
+        subject: message.subject,
+        html: message.html,
+        text: message.text,
+        tags: [{ name: "template", value: message.tag.replace(/[^a-zA-Z0-9_-]/g, "_") }],
+      }),
+      signal: AbortSignal.timeout(15_000),
+    });
+    if (!response.ok) {
+      // Resend errors are JSON { name, message }; never echo the key back.
+      const detail = await response.text().catch(() => "");
+      throw new Error(`Resend responded ${response.status}: ${detail.slice(0, 300)}`);
+    }
+  }
+}

@@ -1,10 +1,14 @@
 import path from "node:path";
 import { Global, Module } from "@nestjs/common";
 import { APP_CONFIG, type AppConfig } from "../config/config";
-import { LogMailTransport, MAIL_TRANSPORT, type MailTransport, SmtpMailTransport } from "./mail-transport";
+import { LogMailTransport, MAIL_TRANSPORT, type MailTransport, ResendMailTransport, SmtpMailTransport } from "./mail-transport";
 import { MailerService } from "./mailer.service";
 
 export function createMailTransport(config: AppConfig): MailTransport {
+  if (config.mail.driver === "resend") {
+    if (!config.mail.resendApiKey) throw new Error("MAIL_DRIVER=resend needs RESEND_API_KEY.");
+    return new ResendMailTransport(config.mail.resendApiKey);
+  }
   if (config.mail.driver === "smtp") {
     if (!config.mail.smtpUrl) throw new Error("MAIL_DRIVER=smtp needs SMTP_URL (e.g. smtps://user:pass@smtp.example.com:465).");
     return new SmtpMailTransport(config.mail.smtpUrl);

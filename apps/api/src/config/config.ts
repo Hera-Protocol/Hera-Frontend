@@ -1,5 +1,6 @@
 import { createHash } from "node:crypto";
 import path from "node:path";
+import { BLOCKSCOUT_API, CHAINS, HORIZON_PUBLIC } from "@hera/core";
 
 export const APP_CONFIG = Symbol("APP_CONFIG");
 
@@ -10,7 +11,7 @@ const DEV_PEPPER = "hera-dev-pepper-do-not-use-in-production";
 const DEV_WEBHOOK_KEY_SEED = "hera-dev-webhook-key-do-not-use-in-production";
 const DEFAULT_MAIL_FROM = "Hera <no-reply@heralayer.com>";
 
-export type MailDriver = "log" | "smtp";
+export type MailDriver = "log" | "smtp" | "resend";
 
 export interface AppConfig {
   env: "development" | "production" | "test";
@@ -30,12 +31,16 @@ export interface AppConfig {
   /** 0 disables the wallet monitor. */
   monitorIntervalMs: number;
   horizonUrl?: string;
+  /** Interchangeable Horizon instances, primary first. Requests fail over between them. */
+  horizonUrls: string[];
+  /** Interchangeable Blockscout v2 bases per live EVM chain, primary first. */
+  blockscoutUrls: Record<string, string[]>;
   /** Chain-data budget for screens a caller is waiting on (POST /screen, wallet add and refresh). The monitor uses core's fuller defaults. */
   interactiveScreen: { deadlineMs: number; maxPages: number };
   /** Express "trust proxy" setting, so rate limits see the client IP behind the Next.js proxy. */
   trustProxy: string;
   rateLimits: { authPerMinute: number; screenPerMinute: number; verifyPerMinute: number };
-  mail: { driver: MailDriver; smtpUrl?: string; from: string };
+  mail: { driver: MailDriver; smtpUrl?: string; resendApiKey?: string; from: string };
   webhooks: {
     /** AES-256-GCM key for signing secrets at rest. */
     secretKey: Buffer;
@@ -72,8 +77,33 @@ function webhookKeyFrom(value: string | undefined): { secretKey: Buffer; secretK
 function mailDriverFrom(value: string | undefined, nodeEnv: AppConfig["env"]): MailDriver {
   const driver = value?.trim().toLowerCase();
   if (!driver) return nodeEnv === "production" ? "smtp" : "log";
-  if (driver !== "log" && driver !== "smtp") throw new Error(`MAIL_DRIVER must be "log" or "smtp", got "${value}"`);
+  if (driver !== "log" && driver !== "smtp" && driver !== "resend") throw new Error(`MAIL_DRIVER must be "log", "smtp" or "resend", got "${value}"`);
   return driver;
+}
+
+function listFrom(value: string | undefined): string[] {
+  return (value ?? "").split(",").map((v) => v.trim().replace(/\/+$/, "")).filter(Boolean);
+}
+
+/** Public Horizon instances verified on 2026-10-19. */
+const DEFAULT_HORIZON_URLS = [HORIZON_PUBLIC, "https://horizon.stellar.lobstr.co"];
+
+/**
+ * Blockscout bases per live EVM chain. BLOCKSCOUT_URLS_EVM_<chainId> overrides the
+ * list; BLOCKSCOUT_API_KEY appends Blockscout's keyed PRO API as a fallback.
+ */
+function blockscoutUrlsFrom(env: Env): Record<string, string[]> {
+  const out: Record<string, string[]> = {};
+  for (const chain of Object.values(CHAINS)) {
+    if (chain.family !== "evm" || !chain.live) continue;
+    const chainId = chain.id.slice("evm:".length);
+    const configured = listFrom(env[`BLOCKSCOUT_URLS_EVM_${chainId}`]);
+    const urls = configured.length > 0 ? configured : [BLOCKSCOUT_API[chain.id]].filter((u): u is string => Boolean(u));
+    const key = env.BLOCKSCOUT_API_KEY?.trim();
+    if (key) urls.push(`https://api.blockscout.com/${chainId}/api/v2?apikey=${encodeURIComponent(key)}`);
+    out[chain.id] = urls;
+  }
+  return out;
 }
 
 export function loadConfig(env: Env = process.env): AppConfig {
@@ -92,7 +122,14 @@ export function loadConfig(env: Env = process.env): AppConfig {
     apiKeyPepper: pepper || DEV_PEPPER,
     apiKeyPepperIsDefault: !pepper,
     monitorIntervalMs: intFrom(env.MONITOR_INTERVAL_MS, 120_000),
-    horizonUrl: env.HORIZON_URL?.trim() || undefined,
+    horizonUrl: (listFrom(env.HORIZON_URLS)[0] ?? env.HORIZON_URL?.trim()) || undefined,
+    horizonUrls: (() => {
+      const list = listFrom(env.HORIZON_URLS);
+      if (list.length > 0) return list;
+      const single = env.HORIZON_URL?.trim();
+      return single ? [single.replace(/\/+$/, "")] : DEFAULT_HORIZON_URLS;
+    })(),
+    blockscoutUrls: blockscoutUrlsFrom(env),
     interactiveScreen: { deadlineMs: intFrom(env.SCREEN_DEADLINE_MS, 8000), maxPages: Math.max(1, intFrom(env.SCREEN_MAX_PAGES, 2)) },
     trustProxy: env.TRUST_PROXY?.trim() || "loopback",
     rateLimits: {
@@ -103,6 +140,7 @@ export function loadConfig(env: Env = process.env): AppConfig {
     mail: {
       driver: mailDriverFrom(env.MAIL_DRIVER, nodeEnv),
       smtpUrl: env.SMTP_URL?.trim() || undefined,
+      resendApiKey: env.RESEND_API_KEY?.trim() || undefined,
       from: env.MAIL_FROM?.trim() || DEFAULT_MAIL_FROM,
     },
     webhooks: {

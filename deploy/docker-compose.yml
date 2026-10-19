@@ -1,0 +1,60 @@
+# Hera API stack: Postgres + API + Caddy (automatic HTTPS for $API_DOMAIN).
+# Run from this directory: docker compose up -d --build
+name: hera
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: hera
+      POSTGRES_USER: hera
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set in .env}
+    # Sized for a 2 GB machine.
+    command: ["postgres", "-c", "shared_buffers=128MB", "-c", "max_connections=40", "-c", "effective_cache_size=512MB"]
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U hera -d hera"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  api:
+    build:
+      context: ..
+      dockerfile: deploy/api.Dockerfile
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      NODE_ENV: production
+      PORT: "4000"
+      DATA_DIR: /data
+      DATABASE_URL: postgres://hera:${POSTGRES_PASSWORD}@postgres:5432/hera
+    volumes:
+      - apidata:/data
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    environment:
+      API_DOMAIN: ${API_DOMAIN:-server.heralayer.com}
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - api
+
+volumes:
+  pgdata:
+  apidata:
+  caddy_data:
+  caddy_config:
