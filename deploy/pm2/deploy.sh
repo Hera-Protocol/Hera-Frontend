@@ -11,7 +11,7 @@ TARBALL="$(mktemp -t hera-XXXX).tar.gz"
 trap 'rm -f "$TARBALL"' EXIT
 
 git -C "$ROOT" archive --format=tar.gz -o "$TARBALL" HEAD
-echo "Shipping $SHA to $VM…"
+echo "Shipping ${SHA} to ${VM}..."
 gcloud compute scp "$TARBALL" "$VM:/tmp/hera-$SHA.tar.gz" --zone "$ZONE" --project "$PROJECT"
 gcloud compute ssh "$VM" --zone "$ZONE" --project "$PROJECT" --command "SHA=$SHA bash -s" <<'REMOTE'
 set -euo pipefail
