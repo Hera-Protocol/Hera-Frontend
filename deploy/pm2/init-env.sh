@@ -14,7 +14,7 @@ DATA_DIR=/opt/hera/shared/data
 API_KEY_PEPPER=$(openssl rand -base64 32)
 WEBHOOK_SECRET_KEY=$(openssl rand -base64 32)
 COOKIE_SECURE=true
-# Browser -> Vercel -> nginx -> API: two proxy hops, so rate limits see the client IP.
+# Browser -> Vercel -> nginx/Caddy -> API: two proxy hops, so rate limits see the client IP.
 TRUST_PROXY=2
 # Email: set RESEND_API_KEY and switch to MAIL_DRIVER=resend once heralayer.com is verified in Resend.
 MAIL_DRIVER=log
